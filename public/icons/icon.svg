@@ -1,13 +1,13 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
-  <!-- Background -->
-  <rect width="512" height="512" rx="112" fill="#0a0a0a"/>
-  <!-- Green circle -->
-  <circle cx="256" cy="256" r="180" fill="#1DB954"/>
-  <!-- Equalizer bars -->
-  <rect x="102" y="284" width="52" height="128" rx="26" fill="#0a0a0a"/>
-  <rect x="180" y="196" width="52" height="216" rx="26" fill="#0a0a0a"/>
-  <rect x="258" y="128" width="52" height="284" rx="26" fill="#0a0a0a"/>
-  <rect x="336" y="228" width="52" height="180" rx="26" fill="#0a0a0a"/>
-  <!-- Live dot -->
-  <circle cx="394" cy="102" r="52" fill="#ef4444"/>
+  <!-- Dark rounded background -->
+  <rect width="512" height="512" rx="115" fill="#0a0a0a"/>
+  <!-- Green circle centered -->
+  <circle cx="256" cy="256" r="200" fill="#1DB954"/>
+  <!-- 4 equalizer bars centered, all inside the circle, bottom-aligned -->
+  <rect x="118" y="286" width="48" height="100" rx="24" fill="#0a0a0a"/>
+  <rect x="186" y="216" width="48" height="170" rx="24" fill="#0a0a0a"/>
+  <rect x="254" y="156" width="48" height="230" rx="24" fill="#0a0a0a"/>
+  <rect x="322" y="246" width="48" height="140" rx="24" fill="#0a0a0a"/>
+  <!-- Live red dot — small, top-right inside circle -->
+  <circle cx="390" cy="148" r="32" fill="#ef4444"/>
 </svg>
