@@ -28,6 +28,7 @@ function NextCover({ song }: { song: Song }) {
 }
 import { TipJar, TipJarBanner } from '@/features/voting/TipJar'
 import { MAX_VOTES } from '@/features/voting/useVoting'
+import { Logo } from '@/components/Logo'
 
 // ---------------------------------------------------------------------------
 // Skeleton
@@ -87,8 +88,8 @@ function NoEventScreen() {
         style={{ backgroundColor: '#0a0a0a' }}
       >
         <div className="text-center space-y-3">
-          <h1 className="font-display text-5xl font-black tracking-tight" style={{ color: '#1DB954' }}>
-            Livefy
+          <h1 className="flex justify-center">
+            <Logo size={48} showText={true} />
           </h1>
           <p className="text-base font-medium" style={{ color: '#888' }}>
             No hay actuación activa
@@ -248,7 +249,7 @@ export default function HomePage() {
           className="sticky top-0 z-40 px-4 py-3 flex items-center justify-between"
           style={{ backgroundColor: '#0a0a0aee', backdropFilter: 'blur(8px)', borderBottom: '1px solid #1a1a1a' }}
         >
-          <span className="font-display text-lg font-black" style={{ color: '#1DB954' }}>Livefy</span>
+          <Logo size={28} showText={true} />
         </div>
         <div className="max-w-lg mx-auto pt-4">
           <SetlistSkeleton />
@@ -274,9 +275,7 @@ export default function HomePage() {
           borderBottom: '1px solid #1a1a1a',
         }}
       >
-        <span className="text-lg font-black shrink-0" style={{ color: '#1DB954' }}>
-          Livefy
-        </span>
+        <Logo size={26} showText={true} className="shrink-0" />
         <p
           className="flex-1 text-center text-sm font-semibold truncate"
           style={{ color: '#ccc' }}
