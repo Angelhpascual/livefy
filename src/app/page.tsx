@@ -29,6 +29,7 @@ function NextCover({ song }: { song: Song }) {
 import { TipJar, TipJarBanner } from '@/features/voting/TipJar'
 import { MAX_VOTES } from '@/features/voting/useVoting'
 import { Logo } from '@/components/Logo'
+import { SuggestionBox } from '@/features/voting/SuggestionBox'
 
 // ---------------------------------------------------------------------------
 // Skeleton
@@ -499,6 +500,10 @@ export default function HomePage() {
             Enviando voto...
           </p>
         )}
+
+        {/* Sugerencias */}
+        <div className="mt-8 mx-4 mb-2" style={{ height: 1, backgroundColor: '#1a1a1a' }} />
+        <SuggestionBox sessionId={sessionId} />
       </div>
 
       <TipJar bizumNumber={event.bizum_number} />

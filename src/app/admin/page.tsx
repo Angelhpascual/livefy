@@ -217,6 +217,13 @@ export default function AdminPage() {
           >
             📊 Stats
           </Link>
+          <Link
+            href="/admin/suggestions"
+            className="px-3 py-2 rounded-lg text-sm font-semibold transition-colors"
+            style={{ backgroundColor: '#1a1a1a', color: '#888', border: '1px solid #333' }}
+          >
+            💡 Sugerencias
+          </Link>
         </div>
       </header>
 
