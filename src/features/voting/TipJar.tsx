@@ -16,8 +16,14 @@ function TipModal({
   bizumNumber: string
   onClose: () => void
 }) {
-  const cleanPhone = bizumNumber.replace(/\s/g, '')
-  const bizumUrl = `bizum://send?phone=${cleanPhone}&concept=${encodeURIComponent(CONCEPT)}`
+  const [copied, setCopied] = useState(false)
+
+  function copyNumber() {
+    navigator.clipboard.writeText(bizumNumber.replace(/\s/g, '')).then(() => {
+      setCopied(true)
+      setTimeout(() => setCopied(false), 2000)
+    }).catch(() => {})
+  }
 
   return (
     <div
@@ -39,23 +45,7 @@ function TipModal({
           </p>
         </div>
 
-        {/* Info */}
-        <div
-          className="rounded-2xl p-4 flex flex-col gap-3"
-          style={{ backgroundColor: '#1a1a1a', border: '1.5px solid #333' }}
-        >
-          <div className="flex items-center justify-between">
-            <span className="text-sm" style={{ color: '#888' }}>Bizum</span>
-            <span className="font-mono font-bold text-white text-base">{bizumNumber}</span>
-          </div>
-          <div className="flex items-center justify-between">
-            <span className="text-sm" style={{ color: '#888' }}>Concepto</span>
-            <span className="font-mono font-bold text-sm" style={{ color: '#1DB954' }}>{CONCEPT}</span>
-          </div>
-          <p className="text-xs" style={{ color: '#555' }}>Cantidad libre, lo que quieras</p>
-        </div>
-
-        {/* Botones de pago */}
+        {/* Revolut — opción principal */}
         <a
           href={REVOLUT_URL}
           target="_blank"
@@ -68,15 +58,30 @@ function TipModal({
           <span>🚀</span>
         </a>
 
-        <a
-          href={bizumUrl}
-          onClick={onClose}
-          className="w-full rounded-2xl py-4 font-bold text-sm text-center active:scale-[0.98] transition-transform flex items-center justify-center gap-2"
-          style={{ backgroundColor: '#1a1a1a', color: '#fff', border: '1px solid #333' }}
+        {/* Bizum — número para copiar y abrir la app manualmente */}
+        <div
+          className="rounded-2xl p-4 flex flex-col gap-3"
+          style={{ backgroundColor: '#1a1a1a', border: '1.5px solid #333' }}
         >
-          <span>Pagar con Bizum</span>
-          <span>📱</span>
-        </a>
+          <p className="text-xs font-semibold uppercase tracking-widest" style={{ color: '#555' }}>O por Bizum</p>
+          <div className="flex items-center justify-between gap-3">
+            <div>
+              <p className="text-white font-mono font-bold text-lg">{bizumNumber}</p>
+              <p className="text-xs mt-0.5" style={{ color: '#555' }}>Concepto: <span style={{ color: '#1DB954' }}>{CONCEPT}</span></p>
+            </div>
+            <button
+              onClick={copyNumber}
+              className="shrink-0 px-4 py-2 rounded-xl text-sm font-bold active:scale-95 transition-all"
+              style={{
+                backgroundColor: copied ? '#0d3320' : '#252525',
+                color: copied ? '#1DB954' : '#888',
+                border: `1px solid ${copied ? '#1DB954' : '#333'}`,
+              }}
+            >
+              {copied ? '✓ Copiado' : 'Copiar'}
+            </button>
+          </div>
+        </div>
 
         <button
           onClick={onClose}
@@ -127,7 +132,7 @@ export function TipJarBanner({ bizumNumber }: TipJarProps) {
         <span className="text-2xl shrink-0">🎸</span>
         <div className="flex-1 min-w-0">
           <p className="text-white font-bold text-sm">¿Te está gustando la música?</p>
-          <p className="text-xs mt-0.5" style={{ color: '#1DB954' }}>Déjame una propina por Bizum</p>
+          <p className="text-xs mt-0.5" style={{ color: '#1DB954' }}>Déjame una propina</p>
         </div>
         <span className="text-xs font-bold shrink-0 px-3 py-1.5 rounded-full" style={{ backgroundColor: '#1DB954', color: '#000' }}>
           ♥ Propina
