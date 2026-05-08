@@ -7,11 +7,7 @@ interface TipJarProps {
 }
 
 const CONCEPT = 'Propina Livefy'
-
-function buildBizumUrl(phone: string, concept: string): string {
-  const clean = phone.replace(/\s/g, '')
-  return `bizum://send?phone=${clean}&concept=${encodeURIComponent(concept)}`
-}
+const REVOLUT_URL = 'https://revolut.me/angelhpascual'
 
 function TipModal({
   bizumNumber,
@@ -20,7 +16,8 @@ function TipModal({
   bizumNumber: string
   onClose: () => void
 }) {
-  const bizumUrl = buildBizumUrl(bizumNumber, CONCEPT)
+  const cleanPhone = bizumNumber.replace(/\s/g, '')
+  const bizumUrl = `bizum://send?phone=${cleanPhone}&concept=${encodeURIComponent(CONCEPT)}`
 
   return (
     <div
@@ -58,20 +55,33 @@ function TipModal({
           <p className="text-xs" style={{ color: '#555' }}>Cantidad libre, lo que quieras</p>
         </div>
 
-        {/* Abrir Bizum directamente */}
+        {/* Botones de pago */}
+        <a
+          href={REVOLUT_URL}
+          target="_blank"
+          rel="noopener noreferrer"
+          onClick={onClose}
+          className="w-full rounded-2xl py-4 font-bold text-sm text-center active:scale-[0.98] transition-transform flex items-center justify-center gap-2"
+          style={{ backgroundColor: '#1DB954', color: '#000' }}
+        >
+          <span>Pagar con Revolut</span>
+          <span>🚀</span>
+        </a>
+
         <a
           href={bizumUrl}
           onClick={onClose}
-          className="w-full rounded-2xl py-4 font-bold text-sm text-center active:scale-[0.98] transition-transform block"
-          style={{ backgroundColor: '#1DB954', color: '#000' }}
+          className="w-full rounded-2xl py-4 font-bold text-sm text-center active:scale-[0.98] transition-transform flex items-center justify-center gap-2"
+          style={{ backgroundColor: '#1a1a1a', color: '#fff', border: '1px solid #333' }}
         >
-          Abrir Bizum 🚀
+          <span>Pagar con Bizum</span>
+          <span>📱</span>
         </a>
 
         <button
           onClick={onClose}
           className="w-full rounded-2xl py-3 font-semibold text-sm active:scale-[0.98] transition-transform"
-          style={{ backgroundColor: 'transparent', color: '#555', border: '1px solid #333' }}
+          style={{ backgroundColor: 'transparent', color: '#555', border: '1px solid #222' }}
         >
           Cerrar
         </button>
