@@ -8,12 +8,18 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
+  const sessionToken = process.env.ADMIN_SESSION_TOKEN
+  if (!sessionToken) {
+    return NextResponse.json({ error: 'Server misconfigured' }, { status: 500 })
+  }
+
   const response = NextResponse.json({ ok: true })
-  response.cookies.set('livefy_admin', password, {
+  response.cookies.set('livefy_session', sessionToken, {
     httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
     path: '/',
-    maxAge: 86400,
-    sameSite: 'lax',
+    maxAge: 86400 * 7, // 7 días
+    sameSite: 'strict',
   })
 
   return response

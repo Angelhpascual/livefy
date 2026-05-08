@@ -1,24 +1,35 @@
 import { NextRequest, NextResponse } from 'next/server'
 
+const SESSION_TOKEN = 'livefy_session'
+
+export function isValidSession(request: NextRequest): boolean {
+  const cookie = request.cookies.get(SESSION_TOKEN)
+  return cookie?.value === process.env.ADMIN_SESSION_TOKEN
+}
+
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
 
-  const isAdminRoute = pathname.startsWith('/admin')
+  const isAdminPage = pathname.startsWith('/admin')
+  const isAdminApi = pathname.startsWith('/api/admin')
   const isLoginPage = pathname === '/admin/login'
+  const isLoginApi = pathname === '/api/admin/login'
 
-  if (!isAdminRoute) return NextResponse.next()
+  if (!isAdminPage && !isAdminApi) return NextResponse.next()
 
-  const cookie = request.cookies.get('livefy_admin')
-  const isAuthenticated = cookie?.value === process.env.ADMIN_PASSWORD
-
-  if (isLoginPage) {
-    if (isAuthenticated) {
+  // Login endpoints are always accessible
+  if (isLoginPage || isLoginApi) {
+    if (isLoginPage && isValidSession(request)) {
       return NextResponse.redirect(new URL('/admin', request.url))
     }
     return NextResponse.next()
   }
 
-  if (!isAuthenticated) {
+  // All other /admin and /api/admin routes require auth
+  if (!isValidSession(request)) {
+    if (isAdminApi) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
     return NextResponse.redirect(new URL('/admin/login', request.url))
   }
 
@@ -26,5 +37,5 @@ export function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/admin/:path*'],
+  matcher: ['/admin/:path*', '/api/admin/:path*'],
 }
