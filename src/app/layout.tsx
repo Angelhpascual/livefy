@@ -50,7 +50,8 @@ export default function RootLayout({
           name="viewport"
           content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover"
         />
-        <link rel="apple-touch-icon" href="/icons/icon-192.png" />
+        <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
+        <link rel="icon" type="image/svg+xml" href="/icons/icon.svg" />
       </head>
       <body className="min-h-full flex flex-col" style={{ fontFamily: "var(--font-body), sans-serif" }}>
         {children}

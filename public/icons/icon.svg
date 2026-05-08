@@ -1,11 +1,13 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
-  <rect width="512" height="512" fill="#0a0a0a"/>
-  <g fill="#1DB954">
-    <!-- Stem -->
-    <rect x="280" y="120" width="24" height="220" rx="12"/>
-    <!-- Flag / beam -->
-    <path d="M304 120 C340 140 360 180 350 220 C330 200 304 200 304 200 Z"/>
-    <!-- Note head -->
-    <ellipse cx="248" cy="340" rx="44" ry="32" transform="rotate(-20 248 340)"/>
-  </g>
+  <!-- Background -->
+  <rect width="512" height="512" rx="112" fill="#0a0a0a"/>
+  <!-- Green circle -->
+  <circle cx="256" cy="256" r="180" fill="#1DB954"/>
+  <!-- Equalizer bars -->
+  <rect x="102" y="284" width="52" height="128" rx="26" fill="#0a0a0a"/>
+  <rect x="180" y="196" width="52" height="216" rx="26" fill="#0a0a0a"/>
+  <rect x="258" y="128" width="52" height="284" rx="26" fill="#0a0a0a"/>
+  <rect x="336" y="228" width="52" height="180" rx="26" fill="#0a0a0a"/>
+  <!-- Live dot -->
+  <circle cx="394" cy="102" r="52" fill="#ef4444"/>
 </svg>
