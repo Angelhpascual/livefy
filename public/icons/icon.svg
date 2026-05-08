@@ -8,6 +8,6 @@
   <rect x="186" y="216" width="48" height="170" rx="24" fill="#0a0a0a"/>
   <rect x="254" y="156" width="48" height="230" rx="24" fill="#0a0a0a"/>
   <rect x="322" y="246" width="48" height="140" rx="24" fill="#0a0a0a"/>
-  <!-- Live red dot — small, top-right inside circle -->
-  <circle cx="390" cy="148" r="32" fill="#ef4444"/>
+  <!-- Live red dot — half outside the green circle, top-right -->
+  <circle cx="426" cy="110" r="36" fill="#ef4444"/>
 </svg>
