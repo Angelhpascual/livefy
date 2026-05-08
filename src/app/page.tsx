@@ -282,7 +282,7 @@ export default function HomePage() {
           </div>
           <div className="flex flex-col gap-3 w-full">
             <div className="rounded-2xl px-5 py-4" style={{ backgroundColor: '#1a1a1a', border: '1px solid #333' }}>
-              <p className="text-4xl font-black text-white">3</p>
+              <p className="text-4xl font-black text-white">{MAX_VOTES}</p>
               <p className="text-sm mt-1" style={{ color: '#888' }}>votos para repartir</p>
             </div>
             <p className="text-sm" style={{ color: '#666' }}>
