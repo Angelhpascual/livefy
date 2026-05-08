@@ -26,7 +26,7 @@ function NextCover({ song }: { song: Song }) {
   if (url && !err) return <img src={url} alt={song.title} onError={() => setErr(true)} className="rounded-lg object-cover shrink-0" style={{ width: 44, height: 44 }} />
   return <div className="rounded-lg shrink-0 flex items-center justify-center font-bold text-white text-sm" style={{ width: 44, height: 44, background: `linear-gradient(135deg,${bg}cc,${bg}44)` }}>{song.title.charAt(0)}</div>
 }
-import { TipJar } from '@/features/voting/TipJar'
+import { TipJar, TipJarBanner } from '@/features/voting/TipJar'
 import { MAX_VOTES } from '@/features/voting/useVoting'
 
 // ---------------------------------------------------------------------------
@@ -427,6 +427,9 @@ export default function HomePage() {
             ))}
           </div>
         )}
+
+        {/* TipJar banner */}
+        <TipJarBanner bizumNumber={event.bizum_number} />
 
         {/* Played songs collapsible */}
         {playedEntries.length > 0 && (
