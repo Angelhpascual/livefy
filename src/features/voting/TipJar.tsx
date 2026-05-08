@@ -6,6 +6,80 @@ interface TipJarProps {
   bizumNumber: string | null
 }
 
+const CONCEPT = 'Propina Livefy'
+
+function buildBizumUrl(phone: string, concept: string): string {
+  const clean = phone.replace(/\s/g, '')
+  return `bizum://send?phone=${clean}&concept=${encodeURIComponent(concept)}`
+}
+
+function TipModal({
+  bizumNumber,
+  onClose,
+}: {
+  bizumNumber: string
+  onClose: () => void
+}) {
+  const bizumUrl = buildBizumUrl(bizumNumber, CONCEPT)
+
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-end justify-center"
+      style={{ backgroundColor: 'rgba(0,0,0,0.85)' }}
+      onClick={(e) => { if (e.target === e.currentTarget) onClose() }}
+    >
+      <div
+        className="w-full max-w-lg rounded-t-3xl p-6 flex flex-col gap-4"
+        style={{ backgroundColor: '#141414' }}
+      >
+        <div className="w-10 h-1 rounded-full mx-auto" style={{ backgroundColor: '#333' }} />
+
+        <div className="text-center">
+          <div className="text-5xl mb-3">🎸</div>
+          <h2 className="text-white font-bold text-xl">Deja una propina</h2>
+          <p className="text-sm mt-1" style={{ color: '#888' }}>
+            Si te está gustando la música, invítame a algo
+          </p>
+        </div>
+
+        {/* Info */}
+        <div
+          className="rounded-2xl p-4 flex flex-col gap-3"
+          style={{ backgroundColor: '#1a1a1a', border: '1.5px solid #333' }}
+        >
+          <div className="flex items-center justify-between">
+            <span className="text-sm" style={{ color: '#888' }}>Bizum</span>
+            <span className="font-mono font-bold text-white text-base">{bizumNumber}</span>
+          </div>
+          <div className="flex items-center justify-between">
+            <span className="text-sm" style={{ color: '#888' }}>Concepto</span>
+            <span className="font-mono font-bold text-sm" style={{ color: '#1DB954' }}>{CONCEPT}</span>
+          </div>
+          <p className="text-xs" style={{ color: '#555' }}>Cantidad libre, lo que quieras</p>
+        </div>
+
+        {/* Abrir Bizum directamente */}
+        <a
+          href={bizumUrl}
+          onClick={onClose}
+          className="w-full rounded-2xl py-4 font-bold text-sm text-center active:scale-[0.98] transition-transform block"
+          style={{ backgroundColor: '#1DB954', color: '#000' }}
+        >
+          Abrir Bizum 🚀
+        </a>
+
+        <button
+          onClick={onClose}
+          className="w-full rounded-2xl py-3 font-semibold text-sm active:scale-[0.98] transition-transform"
+          style={{ backgroundColor: 'transparent', color: '#555', border: '1px solid #333' }}
+        >
+          Cerrar
+        </button>
+      </div>
+    </div>
+  )
+}
+
 export function TipJar({ bizumNumber }: TipJarProps) {
   const [open, setOpen] = useState(false)
 
@@ -13,7 +87,6 @@ export function TipJar({ bizumNumber }: TipJarProps) {
 
   return (
     <>
-      {/* Floating button */}
       <button
         onClick={() => setOpen(true)}
         className="fixed bottom-6 right-4 z-40 flex items-center gap-2 px-4 py-3 rounded-full font-bold text-sm shadow-2xl active:scale-95 transition-transform"
@@ -23,52 +96,7 @@ export function TipJar({ bizumNumber }: TipJarProps) {
         <span>Propina</span>
       </button>
 
-      {/* Modal */}
-      {open && (
-        <div
-          className="fixed inset-0 z-50 flex items-end justify-center"
-          style={{ backgroundColor: 'rgba(0,0,0,0.85)' }}
-          onClick={(e) => { if (e.target === e.currentTarget) setOpen(false) }}
-        >
-          <div
-            className="w-full max-w-lg rounded-t-3xl p-6 flex flex-col gap-4"
-            style={{ backgroundColor: '#141414' }}
-          >
-            <div className="w-10 h-1 rounded-full mx-auto" style={{ backgroundColor: '#333' }} />
-
-            <div className="text-center">
-              <div className="text-5xl mb-3">🎸</div>
-              <h2 className="text-white font-bold text-xl">Deja una propina</h2>
-              <p className="text-sm mt-1" style={{ color: '#888' }}>
-                Si te está gustando la música, invítame a algo
-              </p>
-            </div>
-
-            <div
-              className="rounded-2xl p-4 flex flex-col gap-3"
-              style={{ backgroundColor: '#1a1a1a', border: '1.5px solid #333' }}
-            >
-              <div className="flex items-center justify-between">
-                <span className="text-sm" style={{ color: '#888' }}>Bizum</span>
-                <span className="font-mono font-bold text-white text-base">{bizumNumber}</span>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-sm" style={{ color: '#888' }}>Concepto</span>
-                <span className="font-mono font-bold text-sm" style={{ color: '#1DB954' }}>LIVEFY-PROPINA</span>
-              </div>
-              <p className="text-xs" style={{ color: '#555' }}>Cantidad libre, lo que quieras</p>
-            </div>
-
-            <button
-              onClick={() => setOpen(false)}
-              className="w-full rounded-2xl py-4 font-bold text-sm active:scale-[0.98] transition-transform"
-              style={{ backgroundColor: '#1DB954', color: '#000' }}
-            >
-              ¡Gracias! 🙌
-            </button>
-          </div>
-        </div>
-      )}
+      {open && <TipModal bizumNumber={bizumNumber} onClose={() => setOpen(false)} />}
     </>
   )
 }
@@ -96,51 +124,11 @@ export function TipJarBanner({ bizumNumber }: TipJarProps) {
         </span>
       </button>
 
-      {/* Modal */}
       {open && (
-        <div
-          className="fixed inset-0 z-50 flex items-end justify-center"
-          style={{ backgroundColor: 'rgba(0,0,0,0.85)' }}
-          onClick={(e) => { if (e.target === e.currentTarget) setOpen(false) }}
-        >
-          <div
-            className="w-full max-w-lg rounded-t-3xl p-6 flex flex-col gap-4"
-            style={{ backgroundColor: '#141414' }}
-          >
-            <div className="w-10 h-1 rounded-full mx-auto" style={{ backgroundColor: '#333' }} />
-
-            <div className="text-center">
-              <div className="text-5xl mb-3">🎸</div>
-              <h2 className="text-white font-bold text-xl">Deja una propina</h2>
-              <p className="text-sm mt-1" style={{ color: '#888' }}>
-                Si te está gustando la música, invítame a algo
-              </p>
-            </div>
-
-            <div
-              className="rounded-2xl p-4 flex flex-col gap-3"
-              style={{ backgroundColor: '#1a1a1a', border: '1.5px solid #333' }}
-            >
-              <div className="flex items-center justify-between">
-                <span className="text-sm" style={{ color: '#888' }}>Bizum</span>
-                <span className="font-mono font-bold text-white text-base">{bizumNumber}</span>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-sm" style={{ color: '#888' }}>Concepto</span>
-                <span className="font-mono font-bold text-sm" style={{ color: '#1DB954' }}>LIVEFY-PROPINA</span>
-              </div>
-              <p className="text-xs" style={{ color: '#555' }}>Cantidad libre, lo que quieras</p>
-            </div>
-
-            <button
-              onClick={() => { setOpen(false); setDismissed(true) }}
-              className="w-full rounded-2xl py-4 font-bold text-sm active:scale-[0.98] transition-transform"
-              style={{ backgroundColor: '#1DB954', color: '#000' }}
-            >
-              ¡Gracias! 🙌
-            </button>
-          </div>
-        </div>
+        <TipModal
+          bizumNumber={bizumNumber}
+          onClose={() => { setOpen(false); setDismissed(true) }}
+        />
       )}
     </>
   )
