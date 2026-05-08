@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <rect width="512" height="512" fill="#0a0a0a"/>
+  <g fill="#1DB954">
+    <!-- Stem -->
+    <rect x="280" y="120" width="24" height="220" rx="12"/>
+    <!-- Flag / beam -->
+    <path d="M304 120 C340 140 360 180 350 220 C330 200 304 200 304 200 Z"/>
+    <!-- Note head -->
+    <ellipse cx="248" cy="340" rx="44" ry="32" transform="rotate(-20 248 340)"/>
+  </g>
+</svg>

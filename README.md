@@ -6,17 +6,26 @@ PWA para músicos en directo que permite a los clientes de un local votar el rep
 
 ## Índice
 
-- [Cómo funciona](#cómo-funciona)
-- [Stack tecnológico](#stack-tecnológico)
-- [Requisitos previos](#requisitos-previos)
-- [Instalación local](#instalación-local)
-- [Configuración de Supabase](#configuración-de-supabase)
-- [Variables de entorno](#variables-de-entorno)
-- [Despliegue en Vercel](#despliegue-en-vercel)
-- [Estructura del proyecto](#estructura-del-proyecto)
-- [Flujo de uso](#flujo-de-uso)
-- [Panel de administración](#panel-de-administración)
-- [Tests](#tests)
+- [Livefy](#livefy)
+  - [Índice](#índice)
+  - [Cómo funciona](#cómo-funciona)
+  - [Stack tecnológico](#stack-tecnológico)
+  - [Requisitos previos](#requisitos-previos)
+  - [Instalación local](#instalación-local)
+  - [Configuración de Supabase](#configuración-de-supabase)
+    - [1. Crear proyecto](#1-crear-proyecto)
+    - [2. Ejecutar el esquema](#2-ejecutar-el-esquema)
+    - [3. Activar Realtime](#3-activar-realtime)
+    - [4. Añadir columna de artwork (opcional)](#4-añadir-columna-de-artwork-opcional)
+  - [Variables de entorno](#variables-de-entorno)
+  - [Despliegue en Vercel](#despliegue-en-vercel)
+  - [Estructura del proyecto](#estructura-del-proyecto)
+  - [Flujo de uso](#flujo-de-uso)
+    - [Como músico](#como-músico)
+    - [Como cliente](#como-cliente)
+  - [Panel de administración](#panel-de-administración)
+    - [Viewer de letras/partituras](#viewer-de-letraspartituras)
+  - [Tests](#tests)
 
 ---
 
@@ -33,19 +42,19 @@ PWA para músicos en directo que permite a los clientes de un local votar el rep
 
 ## Stack tecnológico
 
-| Capa | Tecnología |
-|---|---|
-| Framework | Next.js 16 (App Router, Turbopack) |
-| Lenguaje | TypeScript |
-| Estilos | Tailwind CSS v4 |
-| Base de datos | Supabase (PostgreSQL + Realtime) |
-| Autenticación admin | Contraseña simple vía cookie |
-| Imágenes | Sharp (conversión WebP) |
-| Gráficas | Recharts |
-| Notificaciones | Sonner |
-| Tests unitarios | Jest + React Testing Library |
-| Tests e2e | Playwright |
-| Despliegue | Vercel |
+| Capa                | Tecnología                         |
+| ------------------- | ---------------------------------- |
+| Framework           | Next.js 16 (App Router, Turbopack) |
+| Lenguaje            | TypeScript                         |
+| Estilos             | Tailwind CSS v4                    |
+| Base de datos       | Supabase (PostgreSQL + Realtime)   |
+| Autenticación admin | Contraseña simple vía cookie       |
+| Imágenes            | Sharp (conversión WebP)            |
+| Gráficas            | Recharts                           |
+| Notificaciones      | Sonner                             |
+| Tests unitarios     | Jest + React Testing Library       |
+| Tests e2e           | Playwright                         |
+| Despliegue          | Vercel                             |
 
 ---
 
@@ -85,6 +94,7 @@ La app estará disponible en `http://localhost:3000`.
 ### 1. Crear proyecto
 
 Crea un nuevo proyecto en [supabase.com](https://supabase.com) y anota:
+
 - Project URL
 - Anon key (public)
 - Service role key (secret)
@@ -102,6 +112,7 @@ En el **SQL Editor** de Supabase, ejecuta el contenido de `supabase/schema.sql`.
 ### 3. Activar Realtime
 
 En Supabase → **Database → Replication**, activa Realtime para las tablas:
+
 - `events`
 - `setlist_entries`
 
@@ -220,12 +231,12 @@ supabase/
 
 ## Panel de administración
 
-| Ruta | Descripción |
-|---|---|
-| `/admin` | Setlist en directo — gestiona el orden y estado de las canciones |
-| `/admin/songs` | Repertorio — añade, edita, sube letras e imágenes de partituras |
-| `/admin/events` | Historial de eventos — activa/desactiva sesiones |
-| `/admin/stats` | Estadísticas globales y por evento |
+| Ruta            | Descripción                                                      |
+| --------------- | ---------------------------------------------------------------- |
+| `/admin`        | Setlist en directo — gestiona el orden y estado de las canciones |
+| `/admin/songs`  | Repertorio — añade, edita, sube letras e imágenes de partituras  |
+| `/admin/events` | Historial de eventos — activa/desactiva sesiones                 |
+| `/admin/stats`  | Estadísticas globales y por evento                               |
 
 ### Viewer de letras/partituras
 
@@ -252,12 +263,12 @@ npx playwright test
 
 Cobertura actual:
 
-| Módulo | Tests |
-|---|---|
-| `useVoting` | Votos, persistencia localStorage, límite de votos, 409 duplicado |
-| `POST /api/votes` | Free tier, priority tier, duplicado 409 |
-| `GET/POST/PUT/DELETE /api/songs` | CRUD completo |
-| `GET/POST/PATCH/DELETE /api/admin/setlist` | Gestión del setlist |
-| `POST/PATCH/DELETE /api/admin/events` | Gestión de eventos |
-| `getSessionId` | Generación y persistencia de sesión |
-| `ScoreViewer` | Renderizado, navegación por teclado, Escape |
+| Módulo                                     | Tests                                                            |
+| ------------------------------------------ | ---------------------------------------------------------------- |
+| `useVoting`                                | Votos, persistencia localStorage, límite de votos, 409 duplicado |
+| `POST /api/votes`                          | Free tier, priority tier, duplicado 409                          |
+| `GET/POST/PUT/DELETE /api/songs`           | CRUD completo                                                    |
+| `GET/POST/PATCH/DELETE /api/admin/setlist` | Gestión del setlist                                              |
+| `POST/PATCH/DELETE /api/admin/events`      | Gestión de eventos                                               |
+| `getSessionId`                             | Generación y persistencia de sesión                              |
+| `ScoreViewer`                              | Renderizado, navegación por teclado, Escape                      |
