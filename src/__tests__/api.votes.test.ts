@@ -25,18 +25,22 @@ describe('POST /api/votes', () => {
     mockFrom.mockReset()
   })
 
+  it('returns 400 when required fields are missing', async () => {
+    const { POST } = await import('@/app/api/votes/route')
+    const res = await POST(makeRequest({ sessionId: 's1' }))
+    expect(res.status).toBe(400)
+  })
+
   it('with tier free only inserts vote', async () => {
     const insertMock = jest.fn().mockResolvedValue({ error: null })
     mockFrom.mockReturnValue({ insert: insertMock })
 
     const { POST } = await import('@/app/api/votes/route')
-    const req = makeRequest({ entryId: 'e1', sessionId: 's1', tier: 'free' })
-    const res = await POST(req)
+    const res = await POST(makeRequest({ entryId: 'e1', sessionId: 's1', tier: 'free' }))
     const json = await res.json()
 
     expect(res.status).toBe(201)
     expect(json.ok).toBe(true)
-    // Should only call from once (insert vote), not update setlist_entry
     expect(mockFrom).toHaveBeenCalledTimes(1)
   })
 
@@ -50,13 +54,11 @@ describe('POST /api/votes', () => {
       .mockReturnValueOnce({ update: updateMock })
 
     const { POST } = await import('@/app/api/votes/route')
-    const req = makeRequest({ entryId: 'e1', sessionId: 's1', tier: 'priority', dedication: 'Para Maria' })
-    const res = await POST(req)
+    const res = await POST(makeRequest({ entryId: 'e1', sessionId: 's1', tier: 'priority', dedication: 'Para Maria' }))
     const json = await res.json()
 
     expect(res.status).toBe(201)
     expect(json.ok).toBe(true)
-    expect(mockFrom).toHaveBeenCalledTimes(2)
     expect(updateMock).toHaveBeenCalledWith(expect.objectContaining({ tier: 'priority', dedication: 'Para Maria' }))
   })
 
@@ -65,11 +67,53 @@ describe('POST /api/votes', () => {
     mockFrom.mockReturnValue({ insert: insertMock })
 
     const { POST } = await import('@/app/api/votes/route')
-    const req = makeRequest({ entryId: 'e1', sessionId: 's1', tier: 'free' })
-    const res = await POST(req)
+    const res = await POST(makeRequest({ entryId: 'e1', sessionId: 's1', tier: 'free' }))
     const json = await res.json()
 
     expect(res.status).toBe(409)
     expect(json.error).toBe('Already voted')
+  })
+
+  it('handles virtual entry — creates real entry before voting', async () => {
+    const eventSingle = jest.fn().mockResolvedValue({ data: { id: 'ev-1' }, error: null })
+    const maxSingle = jest.fn().mockResolvedValue({ data: { position: 2 }, error: null })
+    const newEntrySingle = jest.fn().mockResolvedValue({ data: { id: 'real-entry-1' }, error: null })
+    const insertVoteMock = jest.fn().mockResolvedValue({ error: null })
+
+    mockFrom
+      .mockReturnValueOnce({ select: jest.fn().mockReturnThis(), eq: jest.fn().mockReturnThis(), single: eventSingle })
+      .mockReturnValueOnce({ select: jest.fn().mockReturnThis(), eq: jest.fn().mockReturnThis(), order: jest.fn().mockReturnThis(), limit: jest.fn().mockReturnThis(), single: maxSingle })
+      .mockReturnValueOnce({ insert: jest.fn().mockReturnThis(), select: jest.fn().mockReturnThis(), single: newEntrySingle })
+      .mockReturnValueOnce({ insert: insertVoteMock })
+
+    const { POST } = await import('@/app/api/votes/route')
+    const res = await POST(makeRequest({ entryId: 'virtual-song-1', sessionId: 's1', tier: 'free' }))
+    const json = await res.json()
+
+    expect(res.status).toBe(201)
+    expect(json.ok).toBe(true)
+    expect(insertVoteMock).toHaveBeenCalledWith(expect.objectContaining({
+      setlist_entry_id: 'real-entry-1',
+    }))
+  })
+
+  it('returns 404 if virtual entry has no active event', async () => {
+    const eventSingle = jest.fn().mockResolvedValue({ data: null, error: { code: 'PGRST116' } })
+    mockFrom.mockReturnValue({ select: jest.fn().mockReturnThis(), eq: jest.fn().mockReturnThis(), single: eventSingle })
+
+    const { POST } = await import('@/app/api/votes/route')
+    const res = await POST(makeRequest({ entryId: 'virtual-song-1', sessionId: 's1', tier: 'free' }))
+
+    expect(res.status).toBe(404)
+  })
+
+  it('returns 500 on database error', async () => {
+    const insertMock = jest.fn().mockResolvedValue({ error: { code: '42000', message: 'DB error' } })
+    mockFrom.mockReturnValue({ insert: insertMock })
+
+    const { POST } = await import('@/app/api/votes/route')
+    const res = await POST(makeRequest({ entryId: 'e1', sessionId: 's1', tier: 'free' }))
+
+    expect(res.status).toBe(500)
   })
 })

@@ -2,6 +2,13 @@ import { renderHook, act } from '@testing-library/react'
 import { useVoting, MAX_VOTES } from '@/features/voting/useVoting'
 
 const VOTES_KEY = (eventId: string) => `livefy_votes_${eventId}`
+const VERSION_KEY = (eventId: string) => `livefy_votes_version_${eventId}`
+const CURRENT_VERSION = 'v2'
+
+function seedVotes(eventId: string, entries: string[]) {
+  localStorage.setItem(VOTES_KEY(eventId), JSON.stringify(entries))
+  localStorage.setItem(VERSION_KEY(eventId), CURRENT_VERSION)
+}
 
 describe('useVoting — extended', () => {
   beforeEach(() => {
@@ -24,13 +31,11 @@ describe('useVoting — extended', () => {
   })
 
   it('free vote is blocked when limit reached', async () => {
-    // Pre-fill votes in localStorage
     const votes = Array.from({ length: MAX_VOTES }, (_, i) => `entry-${i}`)
-    localStorage.setItem(VOTES_KEY('event-1'), JSON.stringify(votes))
+    seedVotes('event-1', votes)
 
     const { result } = renderHook(() => useVoting('session-1', 'event-1'))
-
-    await act(async () => {}) // wait for effect
+    await act(async () => {})
 
     const res = await act(async () => result.current.vote('entry-new', 'free'))
     expect(res.limitReached).toBe(true)
@@ -38,7 +43,7 @@ describe('useVoting — extended', () => {
   })
 
   it('resets votes when eventId changes', async () => {
-    localStorage.setItem(VOTES_KEY('event-1'), JSON.stringify(['entry-1', 'entry-2']))
+    seedVotes('event-1', ['entry-1', 'entry-2'])
 
     const { result, rerender } = renderHook(
       ({ eventId }) => useVoting('session-1', eventId),
@@ -50,6 +55,17 @@ describe('useVoting — extended', () => {
 
     rerender({ eventId: 'event-2' })
     await act(async () => {})
+    expect(result.current.votesUsed).toBe(0)
+  })
+
+  it('resets votes when version key is missing (old data)', async () => {
+    // Simulate old localStorage without version key
+    localStorage.setItem(VOTES_KEY('event-1'), JSON.stringify(['entry-1', 'entry-2', 'entry-3']))
+
+    const { result } = renderHook(() => useVoting('session-1', 'event-1'))
+    await act(async () => {})
+
+    // Old votes should be cleared — user gets fresh start
     expect(result.current.votesUsed).toBe(0)
   })
 
@@ -74,7 +90,7 @@ describe('useVoting — extended', () => {
   })
 
   it('loads existing votes from localStorage on mount', async () => {
-    localStorage.setItem(VOTES_KEY('event-1'), JSON.stringify(['entry-a', 'entry-b']))
+    seedVotes('event-1', ['entry-a', 'entry-b'])
 
     const { result } = renderHook(() => useVoting('session-1', 'event-1'))
     await act(async () => {})
