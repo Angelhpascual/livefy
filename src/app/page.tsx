@@ -142,6 +142,7 @@ export default function HomePage() {
   const { vote, hasVoted, voting, votesUsed, canVote } = useVoting(sessionId, event?.id ?? '')
 
   const welcomeShown = useRef(false)
+  const WELCOME_KEY = 'livefy_welcome_shown'
   const shuffleOrderRef = useRef<Map<string, number>>(new Map())
 
   const sorted = useMemo(() => {
@@ -191,10 +192,15 @@ export default function HomePage() {
 
   const isLoading = eventLoading || (!!event && setlistLoading)
 
-  // Bienvenida cuando carga el evento
+  // Bienvenida cuando carga el evento — solo una vez por sesión de navegador
   useEffect(() => {
     if (!event || isLoading || welcomeShown.current) return
     welcomeShown.current = true
+    try {
+      const key = `${WELCOME_KEY}_${event.id}`
+      if (sessionStorage.getItem(key)) return
+      sessionStorage.setItem(key, '1')
+    } catch {}
     setShowWelcome(true)
   }, [event, isLoading])
 

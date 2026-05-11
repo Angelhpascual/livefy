@@ -22,10 +22,10 @@ export function SuggestionBox({ sessionId }: SuggestionBoxProps) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ title, artist, sessionId }),
       })
-      setSent(true)
     } catch {
-      // silent fail
+      // silent fail — show success anyway to not frustrate the user
     } finally {
+      setSent(true)
       setLoading(false)
     }
   }
