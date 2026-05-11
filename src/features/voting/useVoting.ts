@@ -9,9 +9,19 @@ function votesKey(eventId: string) {
   return `livefy_votes_${eventId}`
 }
 
+const VOTES_VERSION = 'v2' // bump when MAX_VOTES changes
+const VOTES_VERSION_KEY = (eventId: string) => `livefy_votes_version_${eventId}`
+
 function loadVotes(eventId: string): Set<string> {
   if (typeof window === 'undefined') return new Set()
   try {
+    // If stored with an old version, reset votes so users get the new limit
+    const storedVersion = localStorage.getItem(VOTES_VERSION_KEY(eventId))
+    if (storedVersion !== VOTES_VERSION) {
+      localStorage.removeItem(votesKey(eventId))
+      localStorage.setItem(VOTES_VERSION_KEY(eventId), VOTES_VERSION)
+      return new Set()
+    }
     const raw = localStorage.getItem(votesKey(eventId))
     if (!raw) return new Set()
     return new Set(JSON.parse(raw) as string[])
