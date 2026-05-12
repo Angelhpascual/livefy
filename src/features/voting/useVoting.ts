@@ -9,13 +9,18 @@ function votesKey(eventId: string) {
   return `livefy_votes_${eventId}`
 }
 
-const VOTES_VERSION = 'v3' // bumped to reset all stored votes
+// v4: switched to song_id tracking to fix virtual→real entry ID mismatch
+const VOTES_VERSION = 'v4'
 const VOTES_VERSION_KEY = (eventId: string) => `livefy_votes_version_${eventId}`
+
+function songIdFromEntryId(entryId: string): string {
+  // virtual entries have id "virtual-{song_id}", real entries carry song_id separately
+  return entryId.startsWith('virtual-') ? entryId.replace('virtual-', '') : entryId
+}
 
 function loadVotes(eventId: string): Set<string> {
   if (typeof window === 'undefined') return new Set()
   try {
-    // If stored with an old version, reset votes so users get the new limit
     const storedVersion = localStorage.getItem(VOTES_VERSION_KEY(eventId))
     if (storedVersion !== VOTES_VERSION) {
       localStorage.removeItem(votesKey(eventId))
@@ -37,26 +42,34 @@ function persistVotes(eventId: string, votes: Set<string>): void {
 }
 
 export function useVoting(sessionId: string, eventId: string) {
-  const [votedIds, setVotedIds] = useState<Set<string>>(new Set())
+  const [votedSongIds, setVotedSongIds] = useState<Set<string>>(new Set())
   const [voting, setVoting] = useState(false)
 
   useEffect(() => {
     const votes = eventId ? loadVotes(eventId) : new Set<string>()
-    Promise.resolve().then(() => setVotedIds(votes))
+    Promise.resolve().then(() => setVotedSongIds(votes))
   }, [eventId])
 
+  // hasVoted accepts either an entryId or a songId — always resolves to songId
   const hasVoted = useCallback(
-    (entryId: string): boolean => votedIds.has(entryId),
-    [votedIds]
+    (entryId: string): boolean => {
+      const songId = songIdFromEntryId(entryId)
+      return votedSongIds.has(songId) || votedSongIds.has(entryId)
+    },
+    [votedSongIds]
   )
 
-  const votesUsed = votedIds.size
+  const votesUsed = votedSongIds.size
   const canVote = votesUsed < MAX_VOTES
 
   const vote = useCallback(
-    async (entryId: string, tier: Tier, dedication?: string): Promise<{ ok: boolean; conflict: boolean; limitReached: boolean }> => {
+    async (entryId: string, songId: string, tier: Tier, dedication?: string): Promise<{ ok: boolean; conflict: boolean; limitReached: boolean }> => {
       if (!sessionId || !eventId) return { ok: false, conflict: false, limitReached: false }
-      if (votedIds.size >= MAX_VOTES && tier === 'free') return { ok: false, conflict: false, limitReached: true }
+
+      const trackId = songId || songIdFromEntryId(entryId)
+
+      if (votedSongIds.has(trackId) && tier === 'free') return { ok: false, conflict: false, limitReached: false }
+      if (votedSongIds.size >= MAX_VOTES && tier === 'free') return { ok: false, conflict: false, limitReached: true }
 
       setVoting(true)
       try {
@@ -67,13 +80,13 @@ export function useVoting(sessionId: string, eventId: string) {
         })
 
         if (res.status === 409) {
-          setVotedIds((prev) => { const n = new Set(prev); n.add(entryId); persistVotes(eventId, n); return n })
+          setVotedSongIds((prev) => { const n = new Set(prev); n.add(trackId); persistVotes(eventId, n); return n })
           return { ok: false, conflict: true, limitReached: false }
         }
 
         if (!res.ok) return { ok: false, conflict: false, limitReached: false }
 
-        setVotedIds((prev) => { const n = new Set(prev); n.add(entryId); persistVotes(eventId, n); return n })
+        setVotedSongIds((prev) => { const n = new Set(prev); n.add(trackId); persistVotes(eventId, n); return n })
         return { ok: true, conflict: false, limitReached: false }
       } catch {
         return { ok: false, conflict: false, limitReached: false }
@@ -81,7 +94,7 @@ export function useVoting(sessionId: string, eventId: string) {
         setVoting(false)
       }
     },
-    [sessionId, eventId, votedIds]
+    [sessionId, eventId, votedSongIds]
   )
 
   return { vote, hasVoted, voting, votesUsed, canVote }

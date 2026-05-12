@@ -12,6 +12,7 @@ interface SongVoteCardProps {
   bizumNumber: string | null
   onVote: (
     entryId: string,
+    songId: string,
     tier: import("@/types").Tier,
     dedication?: string,
   ) => void
@@ -104,7 +105,7 @@ export function SongVoteCard({
 
   function handleConfirm(tier: import("@/types").Tier, dedication?: string) {
     setModalOpen(false)
-    onVote(entry.id, tier, dedication)
+    onVote(entry.id, entry.song_id, tier, dedication)
   }
 
   return (

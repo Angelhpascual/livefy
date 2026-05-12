@@ -225,10 +225,11 @@ export default function HomePage() {
 
   async function handleVote(
     entryId: string,
+    songId: string,
     tier: import('@/types').Tier,
     dedication?: string
   ) {
-    const result = await vote(entryId, tier, dedication)
+    const result = await vote(entryId, songId, tier, dedication)
     if (result.ok) {
       if (tier === 'free') {
         toast('¡Voto registrado! ♥', { duration: 2000 })
@@ -460,7 +461,7 @@ export default function HomePage() {
                 key={entry.id}
                 entry={entry}
                 sessionId={sessionId}
-                hasVoted={hasVoted(entry.id)}
+                hasVoted={hasVoted(entry.song_id)}
                 canVote={canVote}
                 bizumNumber={event.bizum_number}
                 onVote={handleVote}
@@ -490,7 +491,7 @@ export default function HomePage() {
                     key={entry.id}
                     entry={entry}
                     sessionId={sessionId}
-                    hasVoted={hasVoted(entry.id)}
+                    hasVoted={hasVoted(entry.song_id)}
                     canVote={false}
                     bizumNumber={event.bizum_number}
                     onVote={handleVote}
