@@ -7,6 +7,7 @@ import type { SetlistEntry } from '@/types'
 export function useRepertoire(eventId: string): {
   entries: SetlistEntry[]
   loading: boolean
+  optimisticVote: (songId: string) => void
 } {
   const [entries, setEntries] = useState<SetlistEntry[]>([])
   const [loading, setLoading] = useState(true)
@@ -20,6 +21,13 @@ export function useRepertoire(eventId: string): {
     setLoading(false)
   }, [])
 
+  // Optimistic update — increment vote count immediately without waiting for realtime
+  const optimisticVote = useCallback((songId: string) => {
+    setEntries(prev => prev.map(e =>
+      e.song_id === songId ? { ...e, votes: e.votes + 1 } : e
+    ))
+  }, [])
+
   useEffect(() => {
     if (!eventId) {
       Promise.resolve().then(() => { setEntries([]); setLoading(false) })
@@ -28,7 +36,6 @@ export function useRepertoire(eventId: string): {
     void fetchRepertoire()
   }, [eventId, fetchRepertoire])
 
-  // Listen for realtime changes on setlist_entries to refresh votes
   useEffect(() => {
     if (!eventId) return
     const supabase = createClient()
@@ -37,11 +44,11 @@ export function useRepertoire(eventId: string): {
       .on('postgres_changes', {
         event: '*', schema: 'public', table: 'setlist_entries',
         filter: `event_id=eq.${eventId}`,
-      }, () => { fetchRepertoire() })
+      }, () => { void fetchRepertoire() })
       .subscribe()
 
     return () => { supabase.removeChannel(channel) }
   }, [eventId, fetchRepertoire])
 
-  return { entries, loading }
+  return { entries, loading, optimisticVote }
 }

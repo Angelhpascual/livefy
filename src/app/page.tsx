@@ -137,7 +137,7 @@ export default function HomePage() {
   }, [])
 
   const { event, loading: eventLoading } = useActiveEvent()
-  const { entries, loading: setlistLoading } = useRepertoire(event?.id ?? '')
+  const { entries, loading: setlistLoading, optimisticVote } = useRepertoire(event?.id ?? '')
   const { nowPlaying } = useNowPlaying(event?.id ?? '')
   const { vote, hasVoted, voting, votesUsed, canVote } = useVoting(sessionId, event?.id ?? '')
 
@@ -234,6 +234,7 @@ export default function HomePage() {
   ) {
     const result = await vote(entryId, songId, tier, dedication)
     if (result.ok) {
+      optimisticVote(songId)
       if (tier === 'free') {
         toast('¡Voto registrado! ♥', { duration: 2000 })
       } else {
