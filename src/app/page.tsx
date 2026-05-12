@@ -370,31 +370,49 @@ export default function HomePage() {
           if (top.length < 2) return null
           const maxVotes = top[0].votes
           return (
-            <div className="px-4 pt-5">
-              <p className="text-xs font-bold uppercase tracking-widest mb-3" style={{ color: '#888' }}>
-                🔥 Lo más pedido
-              </p>
-              <div className="flex flex-col gap-2">
+            <div className="px-4 pt-3">
+              <div className="flex items-center gap-2 mb-2">
+                <span style={{ color: '#1DB954', fontSize: 11 }}>🔥</span>
+                <p className="text-xs font-bold uppercase tracking-widest" style={{ color: '#555' }}>
+                  Lo más pedido
+                </p>
+              </div>
+              <div
+                className="rounded-2xl overflow-hidden"
+                style={{ backgroundColor: '#111', border: '1px solid #1a1a1a' }}
+              >
                 {top.map((entry, i) => (
-                  <div key={entry.id} className="flex items-center gap-3">
-                    <span className="text-xs font-bold tabular-nums w-4 text-right shrink-0" style={{ color: '#555' }}>
+                  <div
+                    key={entry.id}
+                    className="flex items-center gap-2.5 px-3 py-2"
+                    style={{ borderBottom: i < top.length - 1 ? '1px solid #1a1a1a' : 'none' }}
+                  >
+                    <span
+                      className="text-xs tabular-nums w-3 shrink-0 text-right"
+                      style={{ color: i === 0 ? '#1DB954' : '#444' }}
+                    >
                       {i + 1}
                     </span>
                     <div className="flex-1 min-w-0">
-                      <div className="flex items-center justify-between gap-2 mb-1">
-                        <p className="text-white text-xs font-medium truncate">{entry.song?.title}</p>
-                        <span className="text-xs font-bold tabular-nums shrink-0" style={{ color: '#1DB954' }}>{entry.votes}</span>
-                      </div>
-                      <div className="w-full rounded-full overflow-hidden" style={{ height: 3, backgroundColor: '#1a1a1a' }}>
-                        <div
-                          className="h-full rounded-full transition-all duration-500"
-                          style={{
-                            width: `${(entry.votes / maxVotes) * 100}%`,
-                            backgroundColor: i === 0 ? '#1DB954' : '#1DB95466',
-                          }}
-                        />
+                      <p className="text-white truncate" style={{ fontSize: 11, fontWeight: 600 }}>
+                        {entry.song?.title}
+                      </p>
+                      <div className="flex items-center gap-1.5 mt-0.5">
+                        <div className="flex-1 rounded-full overflow-hidden" style={{ height: 2, backgroundColor: '#222' }}>
+                          <div
+                            className="h-full rounded-full transition-all duration-500"
+                            style={{
+                              width: `${(entry.votes / maxVotes) * 100}%`,
+                              backgroundColor: i === 0 ? '#1DB954' : '#1DB95440',
+                            }}
+                          />
+                        </div>
+                        <span style={{ color: '#1DB954', fontSize: 10, fontWeight: 700 }}>{entry.votes}</span>
                       </div>
                     </div>
+                    {entry.tier === 'priority' && (
+                      <span style={{ fontSize: 10 }}>⚡</span>
+                    )}
                   </div>
                 ))}
               </div>
