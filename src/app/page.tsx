@@ -160,15 +160,18 @@ export default function HomePage() {
     }
 
     const playing = entries.filter((e) => e.status === 'playing')
+    const priority = entries
+      .filter((e) => e.status === 'pending' && e.tier === 'priority')
+      .sort((a, b) => b.votes - a.votes)
     const withVotes = entries
-      .filter((e) => e.status === 'pending' && e.votes > 0)
+      .filter((e) => e.status === 'pending' && e.tier !== 'priority' && e.votes > 0)
       .sort((a, b) => b.votes - a.votes)
     const noVotes = entries
-      .filter((e) => e.status === 'pending' && e.votes === 0)
+      .filter((e) => e.status === 'pending' && e.tier !== 'priority' && e.votes === 0)
       .sort((a, b) => (shuffleOrderRef.current.get(a.id) ?? 0) - (shuffleOrderRef.current.get(b.id) ?? 0))
     const played = entries.filter((e) => e.status === 'played')
 
-    return [...playing, ...withVotes, ...noVotes, ...played]
+    return [...playing, ...priority, ...withVotes, ...noVotes, ...played]
   }, [entries])
 
   const filtered = useMemo(() => {
@@ -334,7 +337,7 @@ export default function HomePage() {
 
         {/* A continuación */}
         {(() => {
-          const next = activeEntries.find(e => e.status === 'pending' && e.votes > 0 && e.id !== nowPlaying?.id)
+          const next = activeEntries.find(e => e.status === 'pending' && e.id !== nowPlaying?.id && (e.tier === 'priority' || e.votes > 0))
           if (!next || !next.song) return null
           return (
             <div className="px-4 pt-4">
