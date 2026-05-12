@@ -9,7 +9,7 @@ function votesKey(eventId: string) {
   return `livefy_votes_${eventId}`
 }
 
-const VOTES_VERSION = 'v2' // bump when MAX_VOTES changes
+const VOTES_VERSION = 'v3' // bumped to reset all stored votes
 const VOTES_VERSION_KEY = (eventId: string) => `livefy_votes_version_${eventId}`
 
 function loadVotes(eventId: string): Set<string> {
