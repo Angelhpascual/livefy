@@ -448,7 +448,7 @@ export default function HomePage() {
           />
         </div>
 
-        {/* Active songs */}
+        {/* Active songs — scrollable list */}
         {activeEntries.length === 0 && !search ? (
           <p className="text-center text-sm py-12" style={{ color: '#444' }}>
             El repertorio está vacío.
@@ -458,7 +458,10 @@ export default function HomePage() {
             No hay canciones que coincidan.
           </p>
         ) : (
-          <div className="flex flex-col">
+          <div
+            className="flex flex-col overflow-y-auto"
+            style={{ maxHeight: '55vh' }}
+          >
             {activeEntries.map((entry) => (
               <SongVoteCard
                 key={entry.id}
@@ -473,12 +476,19 @@ export default function HomePage() {
           </div>
         )}
 
-        {/* TipJar banner */}
-        <TipJarBanner bizumNumber={event.bizum_number} />
+        {voting && (
+          <p className="text-center text-xs mt-3" style={{ color: '#888' }}>
+            Enviando voto...
+          </p>
+        )}
+
+        {/* Sugerencias — justo después de la lista */}
+        <div className="mt-6 mx-4 mb-2" style={{ height: 1, backgroundColor: '#1a1a1a' }} />
+        <SuggestionBox sessionId={sessionId} />
 
         {/* Played songs collapsible */}
         {playedEntries.length > 0 && (
-          <div className="mt-6 px-4">
+          <div className="mt-2 px-4">
             <button
               onClick={() => setPlayedExpanded((v) => !v)}
               className="w-full flex items-center justify-between py-3 text-sm font-semibold active:opacity-70 transition-opacity"
@@ -505,15 +515,8 @@ export default function HomePage() {
           </div>
         )}
 
-        {voting && (
-          <p className="text-center text-xs mt-4" style={{ color: '#888' }}>
-            Enviando voto...
-          </p>
-        )}
-
-        {/* Sugerencias */}
-        <div className="mt-8 mx-4 mb-2" style={{ height: 1, backgroundColor: '#1a1a1a' }} />
-        <SuggestionBox sessionId={sessionId} />
+        {/* TipJar banner */}
+        <TipJarBanner bizumNumber={event.bizum_number} />
       </div>
 
       <TipJar bizumNumber={event.bizum_number} />
