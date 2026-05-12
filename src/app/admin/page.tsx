@@ -133,6 +133,7 @@ export default function AdminPage() {
   const pendingEntries = entries.filter((e) => e.status === 'pending')
   const playingEntry = entries.find((e) => e.status === 'playing') ?? null
   const playedEntries = entries.filter((e) => e.status === 'played')
+  const pendingBizum = entries.filter((e) => e.tier !== 'free' && !e.bizum_confirmed).length
 
   async function handleAction(id: string, body: Record<string, unknown>) {
     try {
@@ -188,7 +189,17 @@ export default function AdminPage() {
         style={{ backgroundColor: '#0a0a0a', borderColor: '#1a1a1a' }}
       >
         <div>
-          <Logo size={26} showText={true} />
+          <div className="flex items-center gap-2">
+            <Logo size={26} showText={true} />
+            {pendingBizum > 0 && (
+              <span
+                className="text-xs font-black px-2 py-0.5 rounded-full animate-pulse"
+                style={{ backgroundColor: '#f97316', color: '#000' }}
+              >
+                💰 {pendingBizum}
+              </span>
+            )}
+          </div>
           {event && (
             <p className="text-xs mt-0.5" style={{ color: '#888' }}>
               {event.name} · {new Date(event.date).toLocaleDateString('es-ES')}
