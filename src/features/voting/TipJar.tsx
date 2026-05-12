@@ -6,7 +6,7 @@ interface TipJarProps {
   bizumNumber: string | null
 }
 
-const CONCEPT = 'Livefy funda'
+const CONCEPT = 'Apoyo artista Livefy'
 const REVOLUT_URL = 'https://revolut.me/angelhpascual'
 
 function TipModal({
@@ -39,7 +39,7 @@ function TipModal({
 
         <div className="text-center">
           <div className="text-5xl mb-3">🎸</div>
-          <h2 className="text-white font-bold text-xl">Pon algo en la funda</h2>
+          <h2 className="text-white font-bold text-xl">Apoya al artista</h2>
           <p className="text-sm mt-1" style={{ color: '#888' }}>
             Si te está gustando la música, invítame a algo
           </p>
@@ -108,7 +108,7 @@ export function TipJar({ bizumNumber }: TipJarProps) {
         style={{ backgroundColor: '#1DB954', color: '#000' }}
       >
         <span className="text-base">🎸</span>
-        <span>La funda</span>
+        <span>Apoya</span>
       </button>
 
       {open && <TipModal bizumNumber={bizumNumber} onClose={() => setOpen(false)} />}
@@ -132,10 +132,10 @@ export function TipJarBanner({ bizumNumber }: TipJarProps) {
         <span className="text-2xl shrink-0">🎸</span>
         <div className="flex-1 min-w-0">
           <p className="text-white font-bold text-sm">¿Te está gustando la música?</p>
-          <p className="text-xs mt-0.5" style={{ color: '#1DB954' }}>Pon algo en la funda 🎸</p>
+          <p className="text-xs mt-0.5" style={{ color: '#1DB954' }}>Apoya al artista 🎸</p>
         </div>
         <span className="text-xs font-bold shrink-0 px-3 py-1.5 rounded-full" style={{ backgroundColor: '#1DB954', color: '#000' }}>
-          🎸 La funda
+          🎸 Apoya
         </span>
       </button>
 
