@@ -29,19 +29,16 @@ export function NextUpSection({ activeEntries, nowPlayingId }: NextUpSectionProp
 
   return (
     <div className="px-4 pt-4">
-      <p className="text-xs font-bold uppercase tracking-widest mb-2" style={{ color: '#888' }}>▶ A continuación</p>
-      <div
-        className="flex items-center gap-3 p-3 rounded-2xl"
-        style={{ backgroundColor: '#1a1a1a', border: '1px solid #1DB95430' }}
-      >
+      <p className="text-xs font-bold uppercase tracking-widest mb-2 text-muted">▶ A continuación</p>
+      <div className="flex items-center gap-3 p-3 rounded-2xl bg-surface border border-accent-dim">
         <NextCover song={next.song} />
         <div className="flex-1 min-w-0">
           <p className="text-white font-semibold text-sm truncate">{next.song.title}</p>
-          <p className="text-xs truncate" style={{ color: '#888' }}>{next.song.artist}</p>
+          <p className="text-xs truncate text-muted">{next.song.artist}</p>
         </div>
         <div className="flex items-center gap-1 shrink-0">
-          <span style={{ color: '#1DB954', fontSize: 13 }}>♥</span>
-          <span className="font-bold text-sm tabular-nums" style={{ color: '#1DB954' }}>{next.votes}</span>
+          <span className="text-accent" style={{ fontSize: 13 }}>♥</span>
+          <span className="font-bold text-sm tabular-nums text-accent">{next.votes}</span>
         </div>
       </div>
     </div>

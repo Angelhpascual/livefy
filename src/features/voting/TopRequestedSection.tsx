@@ -18,8 +18,8 @@ export function TopRequestedSection({ activeEntries }: TopRequestedSectionProps)
   return (
     <div className="px-4 pt-3">
       <div className="flex items-center gap-2 mb-2">
-        <span style={{ color: '#1DB954', fontSize: 11 }}>🔥</span>
-        <p className="text-xs font-bold uppercase tracking-widest" style={{ color: '#555' }}>Lo más pedido</p>
+        <span className="text-accent" style={{ fontSize: 11 }}>🔥</span>
+        <p className="text-xs font-bold uppercase tracking-widest text-faint">Lo más pedido</p>
       </div>
       <div className="rounded-2xl overflow-hidden" style={{ backgroundColor: '#111', border: '1px solid #1a1a1a' }}>
         {top.map((entry, i) => (
@@ -28,7 +28,10 @@ export function TopRequestedSection({ activeEntries }: TopRequestedSectionProps)
             className="flex items-center gap-2.5 px-3 py-2"
             style={{ borderBottom: i < top.length - 1 ? '1px solid #1a1a1a' : 'none' }}
           >
-            <span className="text-xs tabular-nums w-3 shrink-0 text-right" style={{ color: i === 0 ? '#1DB954' : '#444' }}>
+            <span
+              className="text-xs tabular-nums w-3 shrink-0 text-right"
+              style={{ color: i === 0 ? '#1DB954' : '#444' }}
+            >
               {i + 1}
             </span>
             <div className="flex-1 min-w-0">
@@ -45,7 +48,7 @@ export function TopRequestedSection({ activeEntries }: TopRequestedSectionProps)
                     }}
                   />
                 </div>
-                <span style={{ color: '#1DB954', fontSize: 10, fontWeight: 700 }}>{entry.votes}</span>
+                <span className="text-accent" style={{ fontSize: 10, fontWeight: 700 }}>{entry.votes}</span>
               </div>
             </div>
             {entry.tier === 'priority' && <span style={{ fontSize: 10 }}>⚡</span>}

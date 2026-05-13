@@ -15,6 +15,7 @@ import { SuggestionBox } from '@/features/voting/SuggestionBox'
 import { useSetlistSort } from '@/features/voting/useSetlistSort'
 import { MAX_VOTES } from '@/features/voting/useVoting'
 import { Logo } from '@/components/Logo'
+import { useNetworkStatus } from '@/hooks/useNetworkStatus'
 import type { Tier } from '@/types'
 
 // ---------------------------------------------------------------------------
@@ -98,6 +99,7 @@ export default function HomePage() {
   const { nowPlaying } = useNowPlaying(event?.id ?? '')
   const { vote, hasVoted, voting, votesUsed, canVote } = useVoting(sessionId, event?.id ?? '')
 
+  const isOnline = useNetworkStatus()
   const welcomeShown = useRef(false)
   const WELCOME_KEY = 'livefy_welcome_shown'
   const sorted = useSetlistSort(entries)
@@ -175,8 +177,11 @@ export default function HomePage() {
           className="sticky top-0 z-40 px-4 py-3 flex items-center justify-between gap-2"
           style={{ backgroundColor: '#0a0a0aee', backdropFilter: 'blur(10px)', borderBottom: '1px solid #1a1a1a' }}
         >
-          <Logo size={26} showText={true} className="shrink-0" />
+            <Logo size={26} showText={true} className="shrink-0" />
           <p className="flex-1 text-center text-sm font-semibold truncate" style={{ color: '#ccc' }}>{event.name}</p>
+          {!isOnline && (
+            <span className="shrink-0 text-xs font-bold px-2 py-0.5 rounded-full bg-warning text-black">Sin red</span>
+          )}
         </div>
 
         <NowPlayingBanner nowPlaying={nowPlaying} />

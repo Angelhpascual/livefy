@@ -1,7 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase/admin'
+import { rateLimit, getClientIp } from '@/lib/rateLimit'
 
 export async function POST(req: NextRequest) {
+  const ip = getClientIp(req)
+  if (!rateLimit({ key: `suggestions:${ip}`, limit: 5, windowMs: 3_600_000 })) {
+    return NextResponse.json({ error: 'Too many requests' }, { status: 429 })
+  }
+
   let body: { title?: string; artist?: string; sessionId?: string }
   try {
     body = await req.json()

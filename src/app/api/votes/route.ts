@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createAdminClient as createClient } from '@/lib/supabase/admin'
+import { rateLimit, getClientIp } from '@/lib/rateLimit'
 import type { Tier } from '@/types'
 
 function isUniqueViolation(error: { code?: string }): boolean {
@@ -14,6 +15,11 @@ interface VoteBody {
 }
 
 export async function POST(req: NextRequest) {
+  const ip = getClientIp(req)
+  if (!rateLimit({ key: `votes:${ip}`, limit: 20, windowMs: 60_000 })) {
+    return NextResponse.json({ error: 'Too many requests' }, { status: 429 })
+  }
+
   let body: VoteBody
   try {
     body = (await req.json()) as VoteBody
