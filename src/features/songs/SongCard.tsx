@@ -40,19 +40,6 @@ export function SongCard({ song, onEdit, onDeleted }: SongCardProps) {
         <div className="w-full aspect-square relative">
           <ArtistAvatar artist={song.artist} title={song.title} artworkUrl={song.artwork_url} size="md" />
 
-          {/* Badges top-left */}
-          <div className="absolute top-2 left-2 flex gap-1 flex-wrap">
-            {(song.image_urls ?? []).length > 0 && (
-              <span className="bg-black/60 backdrop-blur-sm text-[#1DB954] text-xs font-semibold px-2 py-0.5 rounded-full">
-                {song.image_urls.length}p
-              </span>
-            )}
-            {song.lyrics && (
-              <span className="bg-black/60 backdrop-blur-sm text-blue-400 text-xs font-semibold px-2 py-0.5 rounded-full">
-                A
-              </span>
-            )}
-          </div>
 
           {/* Menu button top-right */}
           <div className="absolute top-2 right-2">
