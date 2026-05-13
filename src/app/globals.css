@@ -6,8 +6,36 @@
 }
 
 @theme inline {
+  /* Base */
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+
+  /* Surfaces */
+  --color-surface: #1a1a1a;
+  --color-surface-raised: #222222;
+  --color-surface-overlay: #141414;
+
+  /* Borders */
+  --color-border: #333333;
+  --color-border-subtle: #1a1a1a;
+
+  /* Text */
+  --color-muted: #888888;
+  --color-faint: #555555;
+  --color-dimmer: #444444;
+
+  /* Brand */
+  --color-accent: #1DB954;
+  --color-accent-dim: rgba(29, 185, 84, 0.25);
+  --color-accent-faint: rgba(29, 185, 84, 0.06);
+  --color-accent-bg: #0d3320;
+
+  /* Status */
+  --color-danger: #ef4444;
+  --color-danger-bg: #7f1d1d;
+  --color-warning: #f97316;
+
+  /* Fonts */
   --font-sans: var(--font-body);
   --font-mono: var(--font-geist-mono);
 }
@@ -19,7 +47,6 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
-/* Display font para logos, títulos y elementos destacados */
 .font-display {
   font-family: var(--font-display), -apple-system, BlinkMacSystemFont, sans-serif;
 }

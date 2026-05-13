@@ -1,51 +1,10 @@
 'use client'
 
-import { useState, useEffect } from 'react'
 import type { SetlistEntry } from '@/types'
+import { AlbumImage } from '@/components/AlbumImage'
 
 interface NowPlayingBannerProps {
   nowPlaying: SetlistEntry | null
-}
-
-function AlbumArt({ artworkUrl, title, artist }: { artworkUrl: string | null; title: string; artist: string }) {
-  const [fetchedUrl, setFetchedUrl] = useState<string | null>(null)
-  const [errorUrl, setErrorUrl] = useState<string | null>(null)
-
-  useEffect(() => {
-    if (artworkUrl) return
-    const params = new URLSearchParams({ artist, title })
-    fetch(`/api/artist-image?${params}`)
-      .then(r => r.json())
-      .then((d: { url: string | null }) => { if (d.url) setFetchedUrl(d.url) })
-      .catch(() => {})
-  }, [artworkUrl, title, artist])
-
-  const displayUrl = artworkUrl ?? fetchedUrl
-  const hasError = displayUrl !== null && displayUrl === errorUrl
-
-  if (displayUrl && !hasError) {
-    return (
-      // eslint-disable-next-line @next/next/no-img-element
-      <img
-        src={displayUrl}
-        alt={title}
-        className="rounded-lg object-cover shrink-0"
-        style={{ width: 60, height: 60 }}
-        onError={() => setErrorUrl(displayUrl)}
-      />
-    )
-  }
-
-  const colors = ['#1DB954', '#3b82f6', '#f59e0b', '#ec4899', '#8b5cf6']
-  const bg = colors[title.charCodeAt(0) % colors.length]
-  return (
-    <div
-      className="rounded-lg shrink-0 flex items-center justify-center text-lg font-black"
-      style={{ width: 60, height: 60, background: `linear-gradient(135deg, ${bg}aa, ${bg}44)`, color: '#fff' }}
-    >
-      {title.charAt(0).toUpperCase()}
-    </div>
-  )
 }
 
 export function NowPlayingBanner({ nowPlaying }: NowPlayingBannerProps) {
@@ -83,33 +42,18 @@ export function NowPlayingBanner({ nowPlaying }: NowPlayingBannerProps) {
         }}
       >
         <div className="flex items-center gap-3 px-4 py-3 max-w-lg mx-auto">
-          {/* Album art */}
-          <AlbumArt artworkUrl={artwork_url} title={title} artist={artist} />
+          <AlbumImage artworkUrl={artwork_url} artist={artist} title={title} size={60} rounded="lg" />
 
-          {/* Song info + EQ bars */}
           <div className="flex-1 min-w-0">
             <p className="text-white font-bold text-sm truncate leading-tight">{title}</p>
-            <p className="text-xs truncate mt-0.5 leading-tight" style={{ color: '#888' }}>
-              {artist}
-            </p>
-            {/* Equalizer bars */}
+            <p className="text-xs truncate mt-0.5 leading-tight" style={{ color: '#888' }}>{artist}</p>
             <div className="flex items-end gap-0.5 mt-2" style={{ height: 12 }}>
-              <div
-                className="eq-bar-1 rounded-sm origin-bottom"
-                style={{ width: 3, height: 12, backgroundColor: '#1DB954' }}
-              />
-              <div
-                className="eq-bar-2 rounded-sm origin-bottom"
-                style={{ width: 3, height: 12, backgroundColor: '#1DB954' }}
-              />
-              <div
-                className="eq-bar-3 rounded-sm origin-bottom"
-                style={{ width: 3, height: 12, backgroundColor: '#1DB954' }}
-              />
+              <div className="eq-bar-1 rounded-sm origin-bottom" style={{ width: 3, height: 12, backgroundColor: '#1DB954' }} />
+              <div className="eq-bar-2 rounded-sm origin-bottom" style={{ width: 3, height: 12, backgroundColor: '#1DB954' }} />
+              <div className="eq-bar-3 rounded-sm origin-bottom" style={{ width: 3, height: 12, backgroundColor: '#1DB954' }} />
             </div>
           </div>
 
-          {/* EN DIRECTO badge */}
           <div
             className="live-pulse shrink-0 px-2 py-1 rounded-md text-xs font-black tracking-wider"
             style={{ backgroundColor: '#ef4444', color: '#fff' }}
