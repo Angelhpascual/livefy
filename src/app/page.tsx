@@ -16,7 +16,10 @@ import { useSetlistSort } from '@/features/voting/useSetlistSort'
 import { MAX_VOTES } from '@/features/voting/useVoting'
 import { Logo } from '@/components/Logo'
 import { useNetworkStatus } from '@/hooks/useNetworkStatus'
+import { ArtistFooter } from '@/components/ArtistFooter'
 import type { Tier } from '@/types'
+
+const ARTIST_INSTAGRAM = 'angelfrostik'
 
 // ---------------------------------------------------------------------------
 // Skeleton
@@ -283,6 +286,7 @@ export default function HomePage() {
           )}
 
           <TipJar bizumNumber={event.bizum_number} variant="banner" />
+          <ArtistFooter instagramHandle={ARTIST_INSTAGRAM} />
         </div>
 
         <TipJar bizumNumber={event.bizum_number} variant="floating" />
