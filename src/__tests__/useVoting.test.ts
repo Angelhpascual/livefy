@@ -31,7 +31,7 @@ describe('useVoting', () => {
       '/api/votes',
       expect.objectContaining({
         method: 'POST',
-        body: JSON.stringify({ entryId: 'entry-1', sessionId: 'session-1', tier: 'free', dedication: 'Para Juan' }),
+        body: JSON.stringify({ entryId: 'entry-1', eventId: 'event-1', sessionId: 'session-1', tier: 'free', dedication: 'Para Juan' }),
       })
     )
   })

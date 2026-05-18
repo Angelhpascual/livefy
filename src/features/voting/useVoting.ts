@@ -3,7 +3,7 @@
 import { useState, useCallback, useEffect } from "react"
 import type { Tier } from "@/types"
 
-export const MAX_VOTES = 5
+export const MAX_VOTES = 3
 
 function votesKey(eventId: string) {
   return `livefy_votes_${eventId}`
@@ -86,7 +86,7 @@ export function useVoting(sessionId: string, eventId: string) {
         const res = await fetch("/api/votes", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ entryId, sessionId, tier, dedication }),
+          body: JSON.stringify({ entryId, eventId, sessionId, tier, dedication }),
         })
 
         if (res.status === 409) {
@@ -99,6 +99,7 @@ export function useVoting(sessionId: string, eventId: string) {
           return { ok: false, conflict: true, limitReached: false }
         }
 
+        if (res.status === 403) return { ok: false, conflict: false, limitReached: true }
         if (!res.ok) return { ok: false, conflict: false, limitReached: false }
 
         setVotedSongIds((prev) => {

@@ -47,6 +47,19 @@ export async function PATCH(
     return NextResponse.json({ error: error.message }, { status: 500 })
   }
 
+  if (body.bizum_confirmed === true && data?.tier && data.tier !== 'free') {
+    const clientWithRpc = supabase as typeof supabase & {
+      rpc?: (fn: string, args: Record<string, unknown>) => Promise<{ error: { message: string } | null }>
+    }
+    const { error: reorderError } = clientWithRpc.rpc
+      ? await clientWithRpc.rpc('reorder_on_tier_upgrade', { p_entry_id: id, p_new_tier: data.tier })
+      : { error: null }
+
+    if (reorderError) {
+      return NextResponse.json({ error: reorderError.message }, { status: 500 })
+    }
+  }
+
   return NextResponse.json(data)
 }
 
