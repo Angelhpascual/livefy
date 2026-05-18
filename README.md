@@ -134,9 +134,10 @@ SUPABASE_SERVICE_ROLE_KEY=eyJ...
 
 # Contraseña del panel de administración
 ADMIN_PASSWORD=tu_contraseña_segura
+ADMIN_SESSION_TOKEN=token_aleatorio_largo
 
-# Last.fm (opcional, para artwork de artistas como fallback)
-NEXT_PUBLIC_LASTFM_API_KEY=tu_api_key
+# Tests e2e (opcional)
+BASE_URL=http://localhost:3000
 ```
 
 > **Nota:** `SUPABASE_SERVICE_ROLE_KEY` nunca se expone al cliente — solo se usa en las rutas de API del servidor.
@@ -178,7 +179,9 @@ src/
 │   │   ├── login/                # Login admin
 │   │   ├── events/               # Gestión de eventos
 │   │   ├── songs/                # Gestión del repertorio
-│   │   └── stats/                # Estadísticas
+│   │   ├── stats/                # Estadísticas
+│   │   ├── suggestions/          # Sugerencias de clientes
+│   │   └── dashboard/            # Accesos rápidos del panel
 │   └── api/
 │       ├── votes/                # POST votos
 │       ├── songs/                # CRUD canciones
@@ -188,7 +191,8 @@ src/
 │           ├── events/           # CRUD eventos
 │           ├── setlist/          # CRUD setlist entries
 │           ├── login/            # Autenticación
-│           └── stats/            # Datos de estadísticas
+│           ├── stats/            # Datos de estadísticas
+│           └── suggestions/      # Gestión de sugerencias
 ├── features/
 │   ├── voting/                   # Componentes y hooks del cliente
 │   ├── songs/                    # Componentes de canciones (admin)
@@ -199,7 +203,8 @@ src/
 └── types/                        # Tipos TypeScript compartidos
 supabase/
 ├── schema.sql                    # Esquema completo de la base de datos
-└── add_images.sql                # Migración para columnas de artwork
+├── add_images.sql                # Migración para columnas de artwork
+└── suggestions.sql               # Tabla de sugerencias de canciones
 ```
 
 ---
@@ -237,6 +242,8 @@ supabase/
 | `/admin/songs`  | Repertorio — añade, edita, sube letras e imágenes de partituras  |
 | `/admin/events` | Historial de eventos — activa/desactiva sesiones                 |
 | `/admin/stats`  | Estadísticas globales y por evento                               |
+| `/admin/suggestions` | Sugerencias enviadas por clientes                          |
+| `/admin/dashboard` | Accesos rápidos del panel                                     |
 
 ### Viewer de letras/partituras
 

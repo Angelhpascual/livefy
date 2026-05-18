@@ -3,6 +3,10 @@ import { createAdminClient as createClient } from '@/lib/supabase/admin'
 import { rateLimit, getClientIp } from '@/lib/rateLimit'
 import type { Tier } from '@/types'
 
+const VALID_TIERS = new Set<Tier>(['free', 'priority', 'next'])
+const MAX_SESSION_ID_LENGTH = 128
+const MAX_DEDICATION_LENGTH = 280
+
 function isUniqueViolation(error: { code?: string }): boolean {
   return error.code === '23505'
 }
@@ -31,6 +35,18 @@ export async function POST(req: NextRequest) {
 
   if (!entryId || !sessionId || !tier) {
     return NextResponse.json({ error: 'Missing required fields' }, { status: 400 })
+  }
+
+  if (!VALID_TIERS.has(tier)) {
+    return NextResponse.json({ error: 'Invalid tier' }, { status: 400 })
+  }
+
+  if (sessionId.length > MAX_SESSION_ID_LENGTH) {
+    return NextResponse.json({ error: 'Invalid session' }, { status: 400 })
+  }
+
+  if (dedication && dedication.length > MAX_DEDICATION_LENGTH) {
+    return NextResponse.json({ error: 'Dedication too long' }, { status: 400 })
   }
 
   const supabase = await createClient()
@@ -95,7 +111,7 @@ export async function POST(req: NextRequest) {
       tier,
       bizum_confirmed: false,
     }
-    if (dedication) updatePayload.dedication = dedication
+    if (dedication) updatePayload.dedication = dedication.trim()
 
     const { error: updateError } = await supabase
       .from('setlist_entries')

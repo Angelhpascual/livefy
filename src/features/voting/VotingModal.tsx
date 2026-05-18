@@ -131,7 +131,7 @@ export function VotingModal({ entry, bizumNumber, onConfirm, onClose }: VotingMo
               </div>
               {dedication && (
                 <div className="mt-1 pt-2" style={{ borderTop: '1px solid #333' }}>
-                  <p className="text-xs italic" style={{ color: '#888' }}>"{dedication}"</p>
+                  <p className="text-xs italic" style={{ color: '#888' }}>&quot;{dedication}&quot;</p>
                 </div>
               )}
             </div>

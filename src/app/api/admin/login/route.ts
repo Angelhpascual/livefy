@@ -1,7 +1,19 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { getClientIp, rateLimit } from '@/lib/rateLimit'
 
 export async function POST(request: NextRequest) {
-  const body = await request.json() as { password?: string }
+  const ip = getClientIp(request)
+  if (!rateLimit({ key: `admin-login:${ip}`, limit: 5, windowMs: 15 * 60_000 })) {
+    return NextResponse.json({ error: 'Too many requests' }, { status: 429 })
+  }
+
+  let body: { password?: string }
+  try {
+    body = await request.json() as { password?: string }
+  } catch {
+    return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 })
+  }
+
   const { password } = body
 
   if (!password || password !== process.env.ADMIN_PASSWORD) {
