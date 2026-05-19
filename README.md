@@ -123,7 +123,7 @@ supabase/add_images.sql
 supabase/suggestions.sql
 ```
 
-Si ya tienes una base existente, revisa antes si necesitas aplicar solo las partes nuevas: `artwork_url`, índice único `idx_setlist_entries_event_song_unique`, RLS de `votes`/`suggestions` y función `reorder_on_tier_upgrade`.
+Si ya tienes una base existente, aplica `supabase/2026-05-19_existing_database_migration.sql`. Incluye `artwork_url`, tabla/RLS de sugerencias, índice único `idx_setlist_entries_event_song_unique`, RLS de `votes` y función `reorder_on_tier_upgrade`.
 
 ### 4. Activar Realtime
 
