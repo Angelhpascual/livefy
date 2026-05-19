@@ -64,7 +64,7 @@ export default function AdminPage() {
             </p>
           )}
         </div>
-        <div className="flex gap-2">
+        <nav className="flex gap-2 overflow-x-auto max-w-[60vw] sm:max-w-none" aria-label="Navegación admin">
           <Link href="/admin/events" className="px-3 py-2 rounded-lg text-sm font-semibold" style={{ backgroundColor: '#1a1a1a', color: '#888', border: '1px solid #333' }}>
             📅 Eventos
           </Link>
@@ -77,7 +77,7 @@ export default function AdminPage() {
           <Link href="/admin/suggestions" className="px-3 py-2 rounded-lg text-sm font-semibold" style={{ backgroundColor: '#1a1a1a', color: '#888', border: '1px solid #333' }}>
             💡 Sugerencias
           </Link>
-        </div>
+        </nav>
       </header>
 
       {/* Content */}
@@ -106,7 +106,7 @@ export default function AdminPage() {
             </section>
           )}
 
-          <div className="grid grid-cols-2 gap-4 mb-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
             <section>
               <h2 className="text-xs font-bold uppercase tracking-widest mb-3" style={{ color: '#888' }}>
                 Pendientes <span style={{ color: '#555' }}>({pendingEntries.length})</span>

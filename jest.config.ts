@@ -12,6 +12,7 @@ const config: Config = {
   testMatch: ['**/__tests__/**/*.test.ts', '**/__tests__/**/*.test.tsx'],
   testPathIgnorePatterns: ['<rootDir>/.next/', '<rootDir>/coverage/', '<rootDir>/.vercel/'],
   watchPathIgnorePatterns: ['<rootDir>/.next/', '<rootDir>/coverage/', '<rootDir>/.vercel/'],
+  modulePathIgnorePatterns: ['<rootDir>/.next/', '<rootDir>/coverage/', '<rootDir>/.vercel/'],
 }
 
 export default config

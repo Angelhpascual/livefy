@@ -37,6 +37,9 @@ export function VotingModal({ entry, bizumNumber, onConfirm, onClose }: VotingMo
 
   return (
     <div
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="voting-modal-title"
       className="fixed inset-0 z-50 flex items-end justify-center"
       style={{ backgroundColor: 'rgba(0,0,0,0.8)' }}
       onClick={(e) => { if (e.target === e.currentTarget) onClose() }}
@@ -51,7 +54,7 @@ export function VotingModal({ entry, bizumNumber, onConfirm, onClose }: VotingMo
         {/* Song info */}
         <div className="flex items-center gap-3">
           <div className="flex-1 min-w-0">
-            <p className="text-white font-bold text-base leading-tight truncate">{title}</p>
+            <p id="voting-modal-title" className="text-white font-bold text-base leading-tight truncate">{title}</p>
             <p className="text-sm truncate" style={{ color: '#888' }}>{artist}</p>
           </div>
           <button onClick={onClose} className="text-2xl shrink-0" style={{ color: '#555' }} aria-label="Cerrar">×</button>
@@ -88,6 +91,7 @@ export function VotingModal({ entry, bizumNumber, onConfirm, onClose }: VotingMo
             ) : (
               <div className="flex flex-col gap-3">
                 <textarea
+                  aria-label="Dedicatoria"
                   value={dedication}
                   onChange={(e) => setDedication(e.target.value)}
                   placeholder="Escribe tu dedicatoria..."
