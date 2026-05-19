@@ -61,7 +61,7 @@ PWA para músicos en directo que permite a los clientes de un local votar el rep
 ## Requisitos previos
 
 - Node.js 20+
-- npm 10+
+- pnpm 11+
 - Cuenta en [Supabase](https://supabase.com) (plan gratuito suficiente)
 - Cuenta en [Vercel](https://vercel.com) (plan gratuito suficiente)
 
@@ -75,14 +75,14 @@ git clone https://github.com/Angelhpascual/livefy.git
 cd livefy
 
 # 2. Instalar dependencias
-npm install
+pnpm install
 
 # 3. Configurar variables de entorno
 cp .env.example .env.local
 # Edita .env.local con tus credenciales (ver sección siguiente)
 
 # 4. Arrancar el servidor de desarrollo
-npm run dev
+pnpm dev
 ```
 
 La app estará disponible en `http://localhost:3000`.
@@ -164,7 +164,7 @@ BASE_URL=http://localhost:3000
 
 ```bash
 # Instalar Vercel CLI si no lo tienes
-npm i -g vercel
+pnpm add -g vercel
 
 # Login
 vercel login
@@ -275,25 +275,25 @@ Desde el panel admin, cuando hay una canción tocando, se muestra automáticamen
 
 ```bash
 # Verificación principal: lint + unit tests + build
-npm run verify
+pnpm verify
 
 # Tests unitarios
-npm test
+pnpm test
 
 # Tests en modo watch
-npm run test:watch
+pnpm test:watch
 
 # Instalar navegadores Playwright la primera vez
-npm run test:e2e:install -- --with-deps chromium
+pnpm test:e2e:install -- --with-deps chromium
 
 # Tests e2e
-npm run test:e2e -- --project=chromium
+pnpm test:e2e --project=chromium
 ```
 
-`test:e2e` arranca `npm run dev` automáticamente si no defines `BASE_URL`. Si quieres probar contra un despliegue o servidor ya arrancado:
+`test:e2e` arranca `pnpm dev` automáticamente si no defines `BASE_URL`. Si quieres probar contra un despliegue o servidor ya arrancado:
 
 ```bash
-BASE_URL=https://tu-dominio.vercel.app npm run test:e2e -- --project=chromium
+BASE_URL=https://tu-dominio.vercel.app pnpm test:e2e --project=chromium
 ```
 
 Cobertura actual:
@@ -325,6 +325,6 @@ Cobertura actual:
 ## Flujo de trabajo recomendado
 
 1. Trabaja en `develop`.
-2. Ejecuta `npm run verify` antes de subir cambios.
-3. Ejecuta `npm run test:e2e -- --project=chromium` para cambios de UI/flujos críticos.
+2. Ejecuta `pnpm verify` antes de subir cambios.
+3. Ejecuta `pnpm test:e2e --project=chromium` para cambios de UI/flujos críticos.
 4. Sube PR de `develop` a `main` cuando la revisión esté cerrada.
