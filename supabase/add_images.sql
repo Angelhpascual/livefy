@@ -1,6 +1,9 @@
 -- Añadir columna de imágenes a songs (array de URLs, máximo 2)
 ALTER TABLE songs ADD COLUMN IF NOT EXISTS image_urls text[] DEFAULT '{}';
 
+-- Artwork de portada usado en tarjetas y banners
+ALTER TABLE songs ADD COLUMN IF NOT EXISTS artwork_url text;
+
 -- Eliminar tono (viene en las imágenes)
 ALTER TABLE songs DROP COLUMN IF EXISTS key;
 

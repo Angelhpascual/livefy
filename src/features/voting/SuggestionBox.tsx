@@ -11,21 +11,24 @@ export function SuggestionBox({ sessionId }: SuggestionBoxProps) {
   const [artist, setArtist] = useState('')
   const [sent, setSent] = useState(false)
   const [loading, setLoading] = useState(false)
+  const [error, setError] = useState('')
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     if (!title.trim()) return
+    setError('')
     setLoading(true)
     try {
-      await fetch('/api/suggestions', {
+      const res = await fetch('/api/suggestions', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ title, artist, sessionId }),
       })
-    } catch {
-      // silent fail
-    } finally {
+      if (!res.ok) throw new Error('No se pudo enviar la sugerencia')
       setSent(true)
+    } catch {
+      setError('No se pudo enviar. Inténtalo de nuevo en un momento.')
+    } finally {
       setLoading(false)
     }
   }
@@ -48,7 +51,9 @@ export function SuggestionBox({ sessionId }: SuggestionBoxProps) {
       <p className="text-xs mb-4 text-faint">Sugiérela para el próximo evento</p>
 
       <form onSubmit={handleSubmit} className="flex flex-col gap-3">
+        <label htmlFor="suggestion-title" className="sr-only">Nombre de la canción</label>
         <input
+          id="suggestion-title"
           type="text"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
@@ -57,7 +62,9 @@ export function SuggestionBox({ sessionId }: SuggestionBoxProps) {
           required
           className={inputClass}
         />
+        <label htmlFor="suggestion-artist" className="sr-only">Artista</label>
         <input
+          id="suggestion-artist"
           type="text"
           value={artist}
           onChange={(e) => setArtist(e.target.value)}
@@ -65,6 +72,7 @@ export function SuggestionBox({ sessionId }: SuggestionBoxProps) {
           maxLength={100}
           className={inputClass}
         />
+        {error && <p className="text-xs text-red-400" role="alert">{error}</p>}
         <button
           type="submit"
           disabled={loading || !title.trim()}

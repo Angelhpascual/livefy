@@ -19,6 +19,34 @@ function makeRequest(body: unknown): NextRequest {
   })
 }
 
+function chain(result: unknown) {
+  const promise = Promise.resolve(result)
+  const value: Record<string, unknown> = {
+    select: jest.fn(() => value),
+    eq: jest.fn(() => value),
+    in: jest.fn(() => value),
+    order: jest.fn(() => value),
+    limit: jest.fn(() => value),
+    insert: jest.fn(() => value),
+    update: jest.fn(() => value),
+    single: jest.fn(() => promise),
+    then: promise.then.bind(promise),
+    catch: promise.catch.bind(promise),
+  }
+  return value
+}
+
+function mockExistingEntryFlow(insertResult: unknown, updateResult?: unknown) {
+  mockFrom
+    .mockReturnValueOnce(chain({ data: { id: 'event-1' }, error: null }))
+    .mockReturnValueOnce(chain({ data: { id: 'entry-1' }, error: null }))
+    .mockReturnValueOnce(chain({ data: [{ id: 'entry-1' }, { id: 'entry-2' }], error: null }))
+    .mockReturnValueOnce(chain({ count: 0, error: null }))
+    .mockReturnValueOnce(chain(insertResult))
+
+  if (updateResult) mockFrom.mockReturnValueOnce(chain(updateResult))
+}
+
 describe('POST /api/votes', () => {
   beforeEach(() => {
     jest.resetModules()
@@ -32,87 +60,86 @@ describe('POST /api/votes', () => {
   })
 
   it('with tier free only inserts vote', async () => {
-    const insertMock = jest.fn().mockResolvedValue({ error: null })
-    mockFrom.mockReturnValue({ insert: insertMock })
+    mockExistingEntryFlow({ error: null })
 
     const { POST } = await import('@/app/api/votes/route')
-    const res = await POST(makeRequest({ entryId: 'e1', sessionId: 's1', tier: 'free' }))
+    const res = await POST(makeRequest({ entryId: 'entry-1', eventId: 'event-1', sessionId: 's1', tier: 'free' }))
     const json = await res.json()
 
     expect(res.status).toBe(201)
     expect(json.ok).toBe(true)
-    expect(mockFrom).toHaveBeenCalledTimes(1)
+    expect(mockFrom).toHaveBeenCalledTimes(5)
   })
 
   it('with tier priority updates setlist entry with tier and dedication', async () => {
-    const insertMock = jest.fn().mockResolvedValue({ error: null })
-    const eqMock = jest.fn().mockResolvedValue({ error: null })
-    const updateMock = jest.fn(() => ({ eq: eqMock }))
-
-    mockFrom
-      .mockReturnValueOnce({ insert: insertMock })
-      .mockReturnValueOnce({ update: updateMock })
+    const updateChain = chain({ error: null })
+    mockExistingEntryFlow({ error: null })
+    mockFrom.mockReturnValueOnce(updateChain)
 
     const { POST } = await import('@/app/api/votes/route')
-    const res = await POST(makeRequest({ entryId: 'e1', sessionId: 's1', tier: 'priority', dedication: 'Para Maria' }))
+    const res = await POST(makeRequest({ entryId: 'entry-1', eventId: 'event-1', sessionId: 's1', tier: 'priority', dedication: 'Para Maria' }))
     const json = await res.json()
 
     expect(res.status).toBe(201)
     expect(json.ok).toBe(true)
-    expect(updateMock).toHaveBeenCalledWith(expect.objectContaining({ tier: 'priority', dedication: 'Para Maria' }))
+    expect(updateChain.update).toHaveBeenCalledWith(expect.objectContaining({ tier: 'priority', dedication: 'Para Maria' }))
   })
 
   it('returns 409 if vote is duplicate', async () => {
-    const insertMock = jest.fn().mockResolvedValue({ error: { code: '23505', message: 'unique violation' } })
-    mockFrom.mockReturnValue({ insert: insertMock })
+    mockExistingEntryFlow({ error: { code: '23505', message: 'unique violation' } })
 
     const { POST } = await import('@/app/api/votes/route')
-    const res = await POST(makeRequest({ entryId: 'e1', sessionId: 's1', tier: 'free' }))
+    const res = await POST(makeRequest({ entryId: 'entry-1', eventId: 'event-1', sessionId: 's1', tier: 'free' }))
     const json = await res.json()
 
     expect(res.status).toBe(409)
     expect(json.error).toBe('Already voted')
   })
 
-  it('handles virtual entry — creates real entry before voting', async () => {
-    const eventSingle = jest.fn().mockResolvedValue({ data: { id: 'ev-1' }, error: null })
-    const maxSingle = jest.fn().mockResolvedValue({ data: { position: 2 }, error: null })
-    const newEntrySingle = jest.fn().mockResolvedValue({ data: { id: 'real-entry-1' }, error: null })
-    const insertVoteMock = jest.fn().mockResolvedValue({ error: null })
-
+  it('returns 403 when session reached vote limit for event', async () => {
     mockFrom
-      .mockReturnValueOnce({ select: jest.fn().mockReturnThis(), eq: jest.fn().mockReturnThis(), single: eventSingle })
-      .mockReturnValueOnce({ select: jest.fn().mockReturnThis(), eq: jest.fn().mockReturnThis(), order: jest.fn().mockReturnThis(), limit: jest.fn().mockReturnThis(), single: maxSingle })
-      .mockReturnValueOnce({ insert: jest.fn().mockReturnThis(), select: jest.fn().mockReturnThis(), single: newEntrySingle })
-      .mockReturnValueOnce({ insert: insertVoteMock })
+      .mockReturnValueOnce(chain({ data: { id: 'event-1' }, error: null }))
+      .mockReturnValueOnce(chain({ data: { id: 'entry-1' }, error: null }))
+      .mockReturnValueOnce(chain({ data: [{ id: 'entry-1' }, { id: 'entry-2' }, { id: 'entry-3' }, { id: 'entry-4' }, { id: 'entry-5' }], error: null }))
+      .mockReturnValueOnce(chain({ count: 5, error: null }))
 
     const { POST } = await import('@/app/api/votes/route')
-    const res = await POST(makeRequest({ entryId: 'virtual-song-1', sessionId: 's1', tier: 'free' }))
+    const res = await POST(makeRequest({ entryId: 'entry-1', eventId: 'event-1', sessionId: 's1', tier: 'free' }))
+
+    expect(res.status).toBe(403)
+  })
+
+  it('handles virtual entry — creates real entry before voting', async () => {
+    mockFrom
+      .mockReturnValueOnce(chain({ data: { id: 'event-1' }, error: null }))
+      .mockReturnValueOnce(chain({ data: { position: 2 }, error: null }))
+      .mockReturnValueOnce(chain({ data: { id: 'real-entry-1' }, error: null }))
+      .mockReturnValueOnce(chain({ data: [{ id: 'real-entry-1' }], error: null }))
+      .mockReturnValueOnce(chain({ count: 0, error: null }))
+      .mockReturnValueOnce(chain({ error: null }))
+
+    const { POST } = await import('@/app/api/votes/route')
+    const res = await POST(makeRequest({ entryId: 'virtual-song-1', eventId: 'event-1', sessionId: 's1', tier: 'free' }))
     const json = await res.json()
 
     expect(res.status).toBe(201)
     expect(json.ok).toBe(true)
-    expect(insertVoteMock).toHaveBeenCalledWith(expect.objectContaining({
-      setlist_entry_id: 'real-entry-1',
-    }))
   })
 
-  it('returns 404 if virtual entry has no active event', async () => {
-    const eventSingle = jest.fn().mockResolvedValue({ data: null, error: { code: 'PGRST116' } })
-    mockFrom.mockReturnValue({ select: jest.fn().mockReturnThis(), eq: jest.fn().mockReturnThis(), single: eventSingle })
+  it('returns 404 if there is no active event', async () => {
+    mockFrom.mockReturnValueOnce(chain({ data: null, error: { code: 'PGRST116' } }))
 
     const { POST } = await import('@/app/api/votes/route')
-    const res = await POST(makeRequest({ entryId: 'virtual-song-1', sessionId: 's1', tier: 'free' }))
+    const res = await POST(makeRequest({ entryId: 'virtual-song-1', eventId: 'event-1', sessionId: 's1', tier: 'free' }))
 
     expect(res.status).toBe(404)
   })
 
   it('returns 500 on database error', async () => {
-    const insertMock = jest.fn().mockResolvedValue({ error: { code: '42000', message: 'DB error' } })
-    mockFrom.mockReturnValue({ insert: insertMock })
+    mockExistingEntryFlow({ error: { code: '42000', message: 'DB error' } })
 
     const { POST } = await import('@/app/api/votes/route')
-    const res = await POST(makeRequest({ entryId: 'e1', sessionId: 's1', tier: 'free' }))
+    const res = await POST(makeRequest({ entryId: 'entry-1', eventId: 'event-1', sessionId: 's1', tier: 'free' }))
 
     expect(res.status).toBe(500)
   })

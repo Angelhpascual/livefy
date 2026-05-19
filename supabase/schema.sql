@@ -60,6 +60,7 @@ CREATE INDEX idx_setlist_entries_event_id  ON setlist_entries(event_id);
 CREATE INDEX idx_setlist_entries_status    ON setlist_entries(status);
 CREATE INDEX idx_setlist_entries_position  ON setlist_entries(position);
 CREATE INDEX idx_votes_setlist_entry_id    ON votes(setlist_entry_id);
+CREATE UNIQUE INDEX idx_setlist_entries_event_song_unique ON setlist_entries(event_id, song_id);
 
 
 -- ---------------------------------------------------------------------------
@@ -185,17 +186,9 @@ CREATE POLICY "setlist_entries_write_service"
   USING (auth.role() = 'service_role')
   WITH CHECK (auth.role() = 'service_role');
 
--- votes: lectura pública, inserción pública (la constraint UNIQUE evita duplicados),
---        borrado/actualización solo service_role
-CREATE POLICY "votes_read_public"
-  ON votes FOR SELECT
-  USING (true);
-
-CREATE POLICY "votes_insert_public"
-  ON votes FOR INSERT
-  WITH CHECK (true);
-
-CREATE POLICY "votes_write_service"
+-- votes: escritura solo service_role. Los clientes votan mediante /api/votes,
+-- donde se aplican rate limit y validaciones antes de usar service_role.
+CREATE POLICY "votes_service"
   ON votes FOR ALL
   USING (auth.role() = 'service_role')
   WITH CHECK (auth.role() = 'service_role');

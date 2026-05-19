@@ -33,7 +33,7 @@ PWA para músicos en directo que permite a los clientes de un local votar el rep
 
 1. El músico crea un evento y activa su sesión desde el panel admin.
 2. Los clientes del local escanean un QR y acceden a la app con su móvil.
-3. Cada cliente tiene **3 votos** para distribuir entre las canciones del repertorio.
+3. Cada cliente tiene **5 votos** para distribuir entre las canciones del repertorio.
 4. Las canciones con más votos suben en la lista — el setlist se construye en comunidad.
 5. Si un cliente quiere una dedicatoria, paga **1 € por Bizum** y el músico la confirma manualmente.
 6. El músico ve en tiempo real el estado del setlist, puede marcar canciones como "tocando" o "tocada" y consultar las letras/partituras desde el admin.
@@ -61,7 +61,7 @@ PWA para músicos en directo que permite a los clientes de un local votar el rep
 ## Requisitos previos
 
 - Node.js 20+
-- npm 10+
+- pnpm 11+
 - Cuenta en [Supabase](https://supabase.com) (plan gratuito suficiente)
 - Cuenta en [Vercel](https://vercel.com) (plan gratuito suficiente)
 
@@ -75,14 +75,14 @@ git clone https://github.com/Angelhpascual/livefy.git
 cd livefy
 
 # 2. Instalar dependencias
-npm install
+pnpm install
 
 # 3. Configurar variables de entorno
 cp .env.example .env.local
 # Edita .env.local con tus credenciales (ver sección siguiente)
 
 # 4. Arrancar el servidor de desarrollo
-npm run dev
+pnpm dev
 ```
 
 La app estará disponible en `http://localhost:3000`.
@@ -108,17 +108,33 @@ En el **SQL Editor** de Supabase, ejecuta el contenido de `supabase/schema.sql`.
 - `setlist_entries` — canciones activas en un evento con su estado y votos
 - `votes` — votos individuales por sesión (unique por entrada + sesión)
 - Trigger `sync_votes_count` — actualiza automáticamente el contador de votos
+- Función `reorder_on_tier_upgrade` — reordena el setlist al confirmar Bizum
 
-### 3. Activar Realtime
+### 3. Ejecutar migraciones complementarias
+
+Ejecuta también:
+
+```sql
+-- Añade image_urls/artwork_url y prepara el bucket song-images
+-- Ver instrucciones dentro del archivo
+supabase/add_images.sql
+
+-- Crea la tabla de sugerencias con RLS
+supabase/suggestions.sql
+```
+
+Si ya tienes una base existente, revisa antes si necesitas aplicar solo las partes nuevas: `artwork_url`, índice único `idx_setlist_entries_event_song_unique`, RLS de `votes`/`suggestions` y función `reorder_on_tier_upgrade`.
+
+### 4. Activar Realtime
 
 En Supabase → **Database → Replication**, activa Realtime para las tablas:
 
 - `events`
 - `setlist_entries`
 
-### 4. Añadir columna de artwork (opcional)
+### 5. Storage para partituras/imágenes
 
-Si partes de un esquema existente, ejecuta también `supabase/add_images.sql` para añadir las columnas `image_urls` y `artwork_url` a la tabla `songs`.
+Para subir imágenes de canciones, crea el bucket público `song-images` siguiendo las instrucciones de `supabase/add_images.sql`.
 
 ---
 
@@ -134,9 +150,10 @@ SUPABASE_SERVICE_ROLE_KEY=eyJ...
 
 # Contraseña del panel de administración
 ADMIN_PASSWORD=tu_contraseña_segura
+ADMIN_SESSION_TOKEN=token_aleatorio_largo
 
-# Last.fm (opcional, para artwork de artistas como fallback)
-NEXT_PUBLIC_LASTFM_API_KEY=tu_api_key
+# Tests e2e (opcional)
+BASE_URL=http://localhost:3000
 ```
 
 > **Nota:** `SUPABASE_SERVICE_ROLE_KEY` nunca se expone al cliente — solo se usa en las rutas de API del servidor.
@@ -147,7 +164,7 @@ NEXT_PUBLIC_LASTFM_API_KEY=tu_api_key
 
 ```bash
 # Instalar Vercel CLI si no lo tienes
-npm i -g vercel
+pnpm add -g vercel
 
 # Login
 vercel login
@@ -178,7 +195,9 @@ src/
 │   │   ├── login/                # Login admin
 │   │   ├── events/               # Gestión de eventos
 │   │   ├── songs/                # Gestión del repertorio
-│   │   └── stats/                # Estadísticas
+│   │   ├── stats/                # Estadísticas
+│   │   ├── suggestions/          # Sugerencias de clientes
+│   │   └── dashboard/            # Accesos rápidos del panel
 │   └── api/
 │       ├── votes/                # POST votos
 │       ├── songs/                # CRUD canciones
@@ -188,7 +207,8 @@ src/
 │           ├── events/           # CRUD eventos
 │           ├── setlist/          # CRUD setlist entries
 │           ├── login/            # Autenticación
-│           └── stats/            # Datos de estadísticas
+│           ├── stats/            # Datos de estadísticas
+│           └── suggestions/      # Gestión de sugerencias
 ├── features/
 │   ├── voting/                   # Componentes y hooks del cliente
 │   ├── songs/                    # Componentes de canciones (admin)
@@ -199,7 +219,8 @@ src/
 └── types/                        # Tipos TypeScript compartidos
 supabase/
 ├── schema.sql                    # Esquema completo de la base de datos
-└── add_images.sql                # Migración para columnas de artwork
+├── add_images.sql                # Migración para columnas de artwork
+└── suggestions.sql               # Tabla de sugerencias de canciones
 ```
 
 ---
@@ -223,7 +244,7 @@ supabase/
 
 1. Escanea el QR del local o accede a la URL directamente.
 2. Ves el repertorio completo ordenado por votos.
-3. Tienes **3 votos** para distribuir como quieras.
+3. Tienes **5 votos** para distribuir como quieras.
 4. Para una **dedicatoria** (canción con mensaje personal), selecciona la opción de pago y haz el Bizum al número indicado.
 5. El músico confirma la dedicatoria desde su panel.
 
@@ -237,6 +258,8 @@ supabase/
 | `/admin/songs`  | Repertorio — añade, edita, sube letras e imágenes de partituras  |
 | `/admin/events` | Historial de eventos — activa/desactiva sesiones                 |
 | `/admin/stats`  | Estadísticas globales y por evento                               |
+| `/admin/suggestions` | Sugerencias enviadas por clientes                          |
+| `/admin/dashboard` | Accesos rápidos del panel                                     |
 
 ### Viewer de letras/partituras
 
@@ -251,14 +274,26 @@ Desde el panel admin, cuando hay una canción tocando, se muestra automáticamen
 ## Tests
 
 ```bash
+# Verificación principal: lint + unit tests + build
+pnpm verify
+
 # Tests unitarios
-npm test
+pnpm test
 
 # Tests en modo watch
-npm run test:watch
+pnpm test:watch
 
-# Tests e2e (requiere servidor corriendo en localhost:3000)
-npx playwright test
+# Instalar navegadores Playwright la primera vez
+pnpm test:e2e:install -- --with-deps chromium
+
+# Tests e2e
+pnpm test:e2e --project=chromium
+```
+
+`test:e2e` arranca `pnpm dev` automáticamente si no defines `BASE_URL`. Si quieres probar contra un despliegue o servidor ya arrancado:
+
+```bash
+BASE_URL=https://tu-dominio.vercel.app pnpm test:e2e --project=chromium
 ```
 
 Cobertura actual:
@@ -272,3 +307,24 @@ Cobertura actual:
 | `POST/PATCH/DELETE /api/admin/events`      | Gestión de eventos                                               |
 | `getSessionId`                             | Generación y persistencia de sesión                              |
 | `ScoreViewer`                              | Renderizado, navegación por teclado, Escape                      |
+| `Playwright e2e`                           | Login admin, navegación, cliente, búsqueda, apoyo y sesiones      |
+
+---
+
+## Seguridad y límites conocidos
+
+- `SUPABASE_SERVICE_ROLE_KEY` solo debe existir en servidor/Vercel, nunca en cliente.
+- Las mutaciones admin se protegen con cookie `livefy_session` y `ADMIN_SESSION_TOKEN`.
+- `/api/votes` aplica límite servidor de 5 votos por sesión y evento activo.
+- El rate limit actual es en memoria; para producción con alto tráfico conviene migrarlo a Redis/Upstash.
+- Los SQL del repo documentan el estado esperado, pero una base ya desplegada necesita migraciones manuales equivalentes.
+- `next-pwa` está instalado, pero la app actualmente funciona como PWA instalable mediante `manifest.json`; no hay service worker configurado.
+
+---
+
+## Flujo de trabajo recomendado
+
+1. Trabaja en `develop`.
+2. Ejecuta `pnpm verify` antes de subir cambios.
+3. Ejecuta `pnpm test:e2e --project=chromium` para cambios de UI/flujos críticos.
+4. Sube PR de `develop` a `main` cuando la revisión esté cerrada.

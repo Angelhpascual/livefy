@@ -22,6 +22,9 @@ function TipModal({ bizumNumber, onClose }: { bizumNumber: string; onClose: () =
 
   return (
     <div
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="tip-modal-title"
       className="fixed inset-0 z-50 flex items-end justify-center"
       style={{ backgroundColor: 'rgba(0,0,0,0.85)' }}
       onClick={(e) => { if (e.target === e.currentTarget) onClose() }}
@@ -31,7 +34,7 @@ function TipModal({ bizumNumber, onClose }: { bizumNumber: string; onClose: () =
 
         <div className="text-center">
           <div className="text-5xl mb-3">🎸</div>
-          <h2 className="text-white font-bold text-xl">Apoya al artista</h2>
+          <h2 id="tip-modal-title" className="text-white font-bold text-xl">Apoya al artista</h2>
           <p className="text-sm mt-1" style={{ color: '#888' }}>Si te está gustando la música, invítame a algo</p>
         </div>
 

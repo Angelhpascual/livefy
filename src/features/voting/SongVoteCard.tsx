@@ -40,6 +40,12 @@ export function SongVoteCard({
     setModalOpen(true)
   }
 
+  function handleKeyDown(e: React.KeyboardEvent<HTMLDivElement>) {
+    if (e.key !== "Enter" && e.key !== " ") return
+    e.preventDefault()
+    handleTap()
+  }
+
   function handleConfirm(tier: import("@/types").Tier, dedication?: string) {
     setModalOpen(false)
     onVote(entry.id, entry.song_id, tier, dedication)
@@ -48,7 +54,12 @@ export function SongVoteCard({
   return (
     <>
       <div
+        role="button"
+        tabIndex={!isPlayed && canVote && !hasVoted ? 0 : -1}
+        aria-disabled={hasVoted || isPlayed || !canVote}
+        aria-label={hasVoted ? `${title} ya votada` : canVote ? `Abrir opciones para votar ${title}` : `No quedan votos para ${title}`}
         onClick={handleTap}
+        onKeyDown={handleKeyDown}
         className="flex items-center gap-3 px-4 py-2.5 active:bg-white/5 transition-colors select-none"
         style={{
           borderLeft: isPlaying ? "3px solid #1DB954" : "3px solid transparent",

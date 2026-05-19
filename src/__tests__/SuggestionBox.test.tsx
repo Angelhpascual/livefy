@@ -64,7 +64,7 @@ describe('SuggestionBox', () => {
     })
   })
 
-  it('still shows success even if fetch fails (silent fail)', async () => {
+  it('shows an error if fetch fails', async () => {
     ;(global.fetch as jest.Mock).mockRejectedValue(new Error('Network'))
 
     render(<SuggestionBox sessionId="session-1" />)
@@ -74,7 +74,7 @@ describe('SuggestionBox', () => {
     fireEvent.click(screen.getByRole('button', { name: /enviar sugerencia/i }))
 
     await waitFor(() => {
-      expect(screen.getByText('¡Gracias por tu sugerencia!')).toBeInTheDocument()
+      expect(screen.getByRole('alert')).toHaveTextContent('No se pudo enviar')
     })
   })
 })
