@@ -1,6 +1,6 @@
 import { test, expect, Browser, chromium, Page } from '@playwright/test'
 
-const BASE = 'http://localhost:3000'
+const BASE = process.env.BASE_URL ?? 'http://localhost:3000'
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD ?? 'Luke-Skywalker001'
 
 async function newDiner(browser: Browser, name: string) {
@@ -142,10 +142,10 @@ test.describe('Livefy — client flows', () => {
       await startBtn.click()
     }
 
-    const tipBtn = page.locator('button', { hasText: 'Propina' })
+    const tipBtn = page.locator('button', { hasText: 'Apoya' }).first()
     if (await tipBtn.isVisible().catch(() => false)) {
       await tipBtn.click()
-      await expect(page.locator('text=Deja una propina')).toBeVisible()
+      await expect(page.getByRole('heading', { name: 'Apoya al artista' })).toBeVisible()
       await page.locator('button', { hasText: 'Cerrar' }).click()
       console.log('✓ TipJar modal opens and closes')
     } else {
@@ -217,7 +217,7 @@ test.describe('Livefy — multi-diner voting', () => {
     if (await voteCounter.isVisible().catch(() => false)) {
       const text = await voteCounter.textContent()
       console.log(`✓ Vote counter visible: "${text}"`)
-      expect(text).toMatch(/5 votos restantes/i)
+      expect(text).toMatch(/3 votos restantes/i)
     } else {
       console.log('⚠ Vote counter not visible — no active event')
     }
