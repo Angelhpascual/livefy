@@ -108,17 +108,33 @@ En el **SQL Editor** de Supabase, ejecuta el contenido de `supabase/schema.sql`.
 - `setlist_entries` — canciones activas en un evento con su estado y votos
 - `votes` — votos individuales por sesión (unique por entrada + sesión)
 - Trigger `sync_votes_count` — actualiza automáticamente el contador de votos
+- Función `reorder_on_tier_upgrade` — reordena el setlist al confirmar Bizum
 
-### 3. Activar Realtime
+### 3. Ejecutar migraciones complementarias
+
+Ejecuta también:
+
+```sql
+-- Añade image_urls/artwork_url y prepara el bucket song-images
+-- Ver instrucciones dentro del archivo
+supabase/add_images.sql
+
+-- Crea la tabla de sugerencias con RLS
+supabase/suggestions.sql
+```
+
+Si ya tienes una base existente, revisa antes si necesitas aplicar solo las partes nuevas: `artwork_url`, índice único `idx_setlist_entries_event_song_unique`, RLS de `votes`/`suggestions` y función `reorder_on_tier_upgrade`.
+
+### 4. Activar Realtime
 
 En Supabase → **Database → Replication**, activa Realtime para las tablas:
 
 - `events`
 - `setlist_entries`
 
-### 4. Añadir columna de artwork (opcional)
+### 5. Storage para partituras/imágenes
 
-Si partes de un esquema existente, ejecuta también `supabase/add_images.sql` para añadir las columnas `image_urls` y `artwork_url` a la tabla `songs`.
+Para subir imágenes de canciones, crea el bucket público `song-images` siguiendo las instrucciones de `supabase/add_images.sql`.
 
 ---
 
@@ -258,14 +274,26 @@ Desde el panel admin, cuando hay una canción tocando, se muestra automáticamen
 ## Tests
 
 ```bash
+# Verificación principal: lint + unit tests + build
+npm run verify
+
 # Tests unitarios
 npm test
 
 # Tests en modo watch
 npm run test:watch
 
-# Tests e2e (requiere servidor corriendo en localhost:3000)
-npx playwright test
+# Instalar navegadores Playwright la primera vez
+npm run test:e2e:install -- --with-deps chromium
+
+# Tests e2e
+npm run test:e2e -- --project=chromium
+```
+
+`test:e2e` arranca `npm run dev` automáticamente si no defines `BASE_URL`. Si quieres probar contra un despliegue o servidor ya arrancado:
+
+```bash
+BASE_URL=https://tu-dominio.vercel.app npm run test:e2e -- --project=chromium
 ```
 
 Cobertura actual:
@@ -279,3 +307,24 @@ Cobertura actual:
 | `POST/PATCH/DELETE /api/admin/events`      | Gestión de eventos                                               |
 | `getSessionId`                             | Generación y persistencia de sesión                              |
 | `ScoreViewer`                              | Renderizado, navegación por teclado, Escape                      |
+| `Playwright e2e`                           | Login admin, navegación, cliente, búsqueda, apoyo y sesiones      |
+
+---
+
+## Seguridad y límites conocidos
+
+- `SUPABASE_SERVICE_ROLE_KEY` solo debe existir en servidor/Vercel, nunca en cliente.
+- Las mutaciones admin se protegen con cookie `livefy_session` y `ADMIN_SESSION_TOKEN`.
+- `/api/votes` aplica límite servidor de 3 votos por sesión y evento activo.
+- El rate limit actual es en memoria; para producción con alto tráfico conviene migrarlo a Redis/Upstash.
+- Los SQL del repo documentan el estado esperado, pero una base ya desplegada necesita migraciones manuales equivalentes.
+- `next-pwa` está instalado, pero la app actualmente funciona como PWA instalable mediante `manifest.json`; no hay service worker configurado.
+
+---
+
+## Flujo de trabajo recomendado
+
+1. Trabaja en `develop`.
+2. Ejecuta `npm run verify` antes de subir cambios.
+3. Ejecuta `npm run test:e2e -- --project=chromium` para cambios de UI/flujos críticos.
+4. Sube PR de `develop` a `main` cuando la revisión esté cerrada.
