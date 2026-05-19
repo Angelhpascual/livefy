@@ -33,7 +33,7 @@ PWA para músicos en directo que permite a los clientes de un local votar el rep
 
 1. El músico crea un evento y activa su sesión desde el panel admin.
 2. Los clientes del local escanean un QR y acceden a la app con su móvil.
-3. Cada cliente tiene **3 votos** para distribuir entre las canciones del repertorio.
+3. Cada cliente tiene **5 votos** para distribuir entre las canciones del repertorio.
 4. Las canciones con más votos suben en la lista — el setlist se construye en comunidad.
 5. Si un cliente quiere una dedicatoria, paga **1 € por Bizum** y el músico la confirma manualmente.
 6. El músico ve en tiempo real el estado del setlist, puede marcar canciones como "tocando" o "tocada" y consultar las letras/partituras desde el admin.
@@ -244,7 +244,7 @@ supabase/
 
 1. Escanea el QR del local o accede a la URL directamente.
 2. Ves el repertorio completo ordenado por votos.
-3. Tienes **3 votos** para distribuir como quieras.
+3. Tienes **5 votos** para distribuir como quieras.
 4. Para una **dedicatoria** (canción con mensaje personal), selecciona la opción de pago y haz el Bizum al número indicado.
 5. El músico confirma la dedicatoria desde su panel.
 
@@ -315,7 +315,7 @@ Cobertura actual:
 
 - `SUPABASE_SERVICE_ROLE_KEY` solo debe existir en servidor/Vercel, nunca en cliente.
 - Las mutaciones admin se protegen con cookie `livefy_session` y `ADMIN_SESSION_TOKEN`.
-- `/api/votes` aplica límite servidor de 3 votos por sesión y evento activo.
+- `/api/votes` aplica límite servidor de 5 votos por sesión y evento activo.
 - El rate limit actual es en memoria; para producción con alto tráfico conviene migrarlo a Redis/Upstash.
 - Los SQL del repo documentan el estado esperado, pero una base ya desplegada necesita migraciones manuales equivalentes.
 - `next-pwa` está instalado, pero la app actualmente funciona como PWA instalable mediante `manifest.json`; no hay service worker configurado.

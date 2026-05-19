@@ -3,10 +3,6 @@ import { getClientIp, rateLimit } from '@/lib/rateLimit'
 
 export async function POST(request: NextRequest) {
   const ip = getClientIp(request)
-  if (!rateLimit({ key: `admin-login:${ip}`, limit: 5, windowMs: 15 * 60_000 })) {
-    return NextResponse.json({ error: 'Too many requests' }, { status: 429 })
-  }
-
   let body: { password?: string }
   try {
     body = await request.json() as { password?: string }
@@ -17,6 +13,10 @@ export async function POST(request: NextRequest) {
   const { password } = body
 
   if (!password || password !== process.env.ADMIN_PASSWORD) {
+    if (!rateLimit({ key: `admin-login:${ip}`, limit: 5, windowMs: 15 * 60_000 })) {
+      return NextResponse.json({ error: 'Too many requests' }, { status: 429 })
+    }
+
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 

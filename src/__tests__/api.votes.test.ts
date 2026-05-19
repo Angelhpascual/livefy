@@ -100,8 +100,8 @@ describe('POST /api/votes', () => {
     mockFrom
       .mockReturnValueOnce(chain({ data: { id: 'event-1' }, error: null }))
       .mockReturnValueOnce(chain({ data: { id: 'entry-1' }, error: null }))
-      .mockReturnValueOnce(chain({ data: [{ id: 'entry-1' }, { id: 'entry-2' }, { id: 'entry-3' }], error: null }))
-      .mockReturnValueOnce(chain({ count: 3, error: null }))
+      .mockReturnValueOnce(chain({ data: [{ id: 'entry-1' }, { id: 'entry-2' }, { id: 'entry-3' }, { id: 'entry-4' }, { id: 'entry-5' }], error: null }))
+      .mockReturnValueOnce(chain({ count: 5, error: null }))
 
     const { POST } = await import('@/app/api/votes/route')
     const res = await POST(makeRequest({ entryId: 'entry-1', eventId: 'event-1', sessionId: 's1', tier: 'free' }))

@@ -4,7 +4,7 @@ import { rateLimit, getClientIp } from '@/lib/rateLimit'
 import type { Tier } from '@/types'
 
 const VALID_TIERS = new Set<Tier>(['free', 'priority', 'next'])
-const MAX_VOTES = 3
+const MAX_VOTES = 5
 const MAX_SESSION_ID_LENGTH = 128
 const MAX_DEDICATION_LENGTH = 280
 

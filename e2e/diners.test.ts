@@ -217,7 +217,7 @@ test.describe('Livefy — multi-diner voting', () => {
     if (await voteCounter.isVisible().catch(() => false)) {
       const text = await voteCounter.textContent()
       console.log(`✓ Vote counter visible: "${text}"`)
-      expect(text).toMatch(/3 votos restantes/i)
+      expect(text).toMatch(/5 votos restantes/i)
     } else {
       console.log('⚠ Vote counter not visible — no active event')
     }

@@ -3,7 +3,7 @@
 import { useState, useCallback, useEffect } from "react"
 import type { Tier } from "@/types"
 
-export const MAX_VOTES = 3
+export const MAX_VOTES = 5
 
 function votesKey(eventId: string) {
   return `livefy_votes_${eventId}`
